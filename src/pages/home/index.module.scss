@@ -1,0 +1,163 @@
+@use '@/styles/variables.scss' as *;
+
+.container {
+  min-height: 100vh;
+  background: $gradient-bg;
+}
+
+.header {
+  background: $gradient-primary;
+  padding: $spacing-lg $page-padding;
+  padding-top: calc(env(safe-area-inset-top) + 40rpx);
+  color: $color-text-white;
+}
+
+.headerTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $spacing-md;
+}
+
+.greeting {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+}
+
+.welcomeText {
+  font-size: $font-size-sm;
+  opacity: 0.9;
+  margin-top: 8rpx;
+}
+
+.searchBox {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: $radius-button;
+  padding: 16rpx $spacing-md;
+  margin-top: $spacing-md;
+}
+
+.searchIcon {
+  font-size: $font-size-md;
+  margin-right: $spacing-xs;
+}
+
+.searchInput {
+  flex: 1;
+  font-size: $font-size-sm;
+  color: $color-text-white;
+  background: transparent;
+  border: none;
+  outline: none;
+
+  &::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+  }
+}
+
+.quickActions {
+  display: flex;
+  gap: $spacing-sm;
+  margin-top: $spacing-md;
+}
+
+.quickAction {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: $radius-md;
+  padding: $spacing-sm;
+  text-align: center;
+  transition: all $transition-base;
+
+  &:active {
+    opacity: 0.8;
+    transform: scale(0.95);
+  }
+}
+
+.quickActionText {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  display: block;
+  margin-top: 8rpx;
+}
+
+.content {
+  padding: $page-padding;
+  padding-bottom: 140rpx;
+}
+
+.sectionTitle {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-md;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sectionSubtitle {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  font-weight: $font-weight-normal;
+}
+
+.competitionList {
+  margin-top: $spacing-lg;
+}
+
+.filterBar {
+  display: flex;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-md;
+  overflow-x: auto;
+  padding-bottom: $spacing-xs;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.filterItem {
+  padding: 12rpx 32rpx;
+  background: $color-bg-card;
+  border-radius: $radius-button;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  white-space: nowrap;
+  transition: all $transition-base;
+
+  &:active {
+    opacity: 0.8;
+  }
+}
+
+.filterItemActive {
+  background: $color-primary;
+  color: $color-text-white;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 80rpx 40rpx;
+}
+
+.emptyIcon {
+  font-size: 120rpx;
+  margin-bottom: $spacing-md;
+}
+
+.emptyTitle {
+  font-size: $font-size-lg;
+  color: $color-text-secondary;
+  font-weight: $font-weight-medium;
+  margin-bottom: $spacing-xs;
+}
+
+.emptyDesc {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}

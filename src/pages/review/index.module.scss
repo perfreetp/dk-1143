@@ -1,0 +1,462 @@
+@use '@/styles/variables.scss' as *;
+
+.container {
+  min-height: 100vh;
+  background: $color-bg-page;
+}
+
+.tabHeader {
+  display: flex;
+  background: $color-bg-card;
+  border-bottom: 1rpx solid $color-border;
+  padding: 0 $page-padding;
+}
+
+.tabItem {
+  flex: 1;
+  padding: $spacing-md 0;
+  text-align: center;
+  position: relative;
+  transition: all $transition-base;
+}
+
+.tabText {
+  font-size: $font-size-md;
+  color: $color-text-tertiary;
+  font-weight: $font-weight-medium;
+}
+
+.tabItemActive {
+  .tabText {
+    color: $color-primary;
+    font-weight: $font-weight-semibold;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 64rpx;
+    height: 6rpx;
+    background: $gradient-primary;
+    border-radius: 3rpx;
+  }
+}
+
+.scrollContent {
+  height: calc(100vh - 100rpx);
+}
+
+.tabContent {
+  padding: $page-padding;
+}
+
+.overallCard {
+  background: $gradient-primary;
+  border-radius: $radius-xl;
+  padding: $spacing-xl;
+  text-align: center;
+  color: $color-text-white;
+  margin-bottom: $spacing-lg;
+}
+
+.overallScore {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  margin-bottom: $spacing-xs;
+}
+
+.scoreNumber {
+  font-size: 96rpx;
+  font-weight: $font-weight-bold;
+  line-height: 1;
+}
+
+.scoreMax {
+  font-size: $font-size-xl;
+  opacity: 0.8;
+  margin-left: 8rpx;
+}
+
+.overallLabel {
+  font-size: $font-size-md;
+  opacity: 0.9;
+  margin-bottom: $spacing-md;
+}
+
+.reviewerInfo {
+  padding-top: $spacing-md;
+  border-top: 1rpx solid rgba(255, 255, 255, 0.2);
+}
+
+.reviewerName {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  display: block;
+  margin-bottom: 4rpx;
+}
+
+.reviewerTitle {
+  font-size: $font-size-sm;
+  opacity: 0.8;
+}
+
+.sectionTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-md;
+  display: block;
+}
+
+.scoreList {
+  margin-bottom: $spacing-lg;
+}
+
+.scoreItem {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-md;
+  margin-bottom: $spacing-sm;
+  box-shadow: $shadow-card;
+}
+
+.scoreHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $spacing-sm;
+}
+
+.dimensionName {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.scoreBadge {
+  display: flex;
+  align-items: center;
+  padding: 8rpx 20rpx;
+  border-radius: $radius-button;
+  font-weight: $font-weight-semibold;
+}
+
+.scoreExcellent {
+  background: rgba(82, 196, 26, 0.1);
+  .scoreValue {
+    color: $color-success;
+  }
+  .scoreDivider, .scoreMaxValue {
+    color: $color-success;
+    opacity: 0.7;
+  }
+}
+
+.scoreGood {
+  background: rgba(91, 134, 229, 0.1);
+  .scoreValue {
+    color: $color-primary;
+  }
+  .scoreDivider, .scoreMaxValue {
+    color: $color-primary;
+    opacity: 0.7;
+  }
+}
+
+.scoreFair {
+  background: rgba(250, 173, 20, 0.1);
+  .scoreValue {
+    color: $color-warning;
+  }
+  .scoreDivider, .scoreMaxValue {
+    color: $color-warning;
+    opacity: 0.7;
+  }
+}
+
+.scorePoor {
+  background: rgba(245, 63, 63, 0.1);
+  .scoreValue {
+    color: $color-error;
+  }
+  .scoreDivider, .scoreMaxValue {
+    color: $color-error;
+    opacity: 0.7;
+  }
+}
+
+.scoreValue {
+  font-size: $font-size-md;
+  font-weight: $font-weight-bold;
+}
+
+.scoreDivider, .scoreMaxValue {
+  font-size: $font-size-sm;
+}
+
+.scoreBar {
+  height: 8rpx;
+  background: $color-bg-hover;
+  border-radius: 4rpx;
+  overflow: hidden;
+  margin-bottom: $spacing-sm;
+}
+
+.scoreBarFill {
+  height: 100%;
+  border-radius: 4rpx;
+  transition: width 0.3s ease;
+}
+
+.scoreExcellent .scoreBarFill,
+.scoreGood .scoreBarFill {
+  background: $color-success;
+}
+
+.scoreFair .scoreBarFill {
+  background: $color-warning;
+}
+
+.scorePoor .scoreBarFill {
+  background: $color-error;
+}
+
+.scoreComment {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  line-height: 1.6;
+}
+
+.reviewSwitcher {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-md;
+  box-shadow: $shadow-card;
+}
+
+.reviewSwitchLabel {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  text-align: center;
+  display: block;
+  margin-bottom: $spacing-sm;
+}
+
+.switchButtons {
+  display: flex;
+  gap: $spacing-sm;
+}
+
+.switchBtn {
+  @include button-reset;
+  flex: 1;
+  height: $button-height-sm;
+  background: $color-bg-page;
+  color: $color-text-secondary;
+  border-radius: $radius-button;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  border: 2rpx solid $color-border;
+
+  &[disabled] {
+    opacity: 0.5;
+  }
+}
+
+.commentCard {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+  box-shadow: $shadow-card;
+}
+
+.commentHeader {
+  display: flex;
+  align-items: center;
+  margin-bottom: $spacing-md;
+}
+
+.reviewerAvatar {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  background: $gradient-primary;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: $spacing-md;
+  font-size: $font-size-lg;
+  color: $color-text-white;
+  font-weight: $font-weight-bold;
+}
+
+.reviewerDetail {
+  flex: 1;
+}
+
+.reviewerName {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  display: block;
+  margin-bottom: 4rpx;
+}
+
+.reviewerTitle {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+.reviewDate {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.commentContent {
+  padding: $spacing-md;
+  background: $color-bg-page;
+  border-radius: $radius-md;
+  margin-bottom: $spacing-md;
+}
+
+.commentText {
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+  line-height: 1.8;
+}
+
+.commentFooter {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-top: $spacing-sm;
+  border-top: 1rpx solid $color-border;
+}
+
+.footerLabel {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+.footerScore {
+  font-size: $font-size-md;
+  color: $color-primary;
+  font-weight: $font-weight-bold;
+}
+
+.defenseInfo {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+  box-shadow: $shadow-card;
+}
+
+.defenseTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  display: block;
+  margin-bottom: $spacing-xs;
+}
+
+.defenseDesc {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+.slotGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: $spacing-sm;
+  margin-bottom: $spacing-md;
+}
+
+.slotItem {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-md;
+  text-align: center;
+  box-shadow: $shadow-card;
+  border: 2rpx solid transparent;
+  transition: all $transition-base;
+}
+
+.slotItemAvailable {
+  &:active {
+    opacity: 0.8;
+    transform: scale(0.98);
+  }
+}
+
+.slotItemSelected {
+  background: rgba(91, 134, 229, 0.1);
+  border-color: $color-primary;
+}
+
+.slotItemDisabled {
+  background: $color-bg-hover;
+  opacity: 0.6;
+}
+
+.slotTime {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  display: block;
+  margin-bottom: $spacing-xs;
+}
+
+.slotStatus {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.slotItemSelected .slotTime {
+  color: $color-primary;
+}
+
+.slotItemSelected .slotStatus {
+  color: $color-primary;
+  font-weight: $font-weight-medium;
+}
+
+.slotItemAvailable .slotStatus {
+  color: $color-success;
+}
+
+.defenseNote {
+  display: flex;
+  align-items: flex-start;
+  padding: $spacing-md;
+  background: rgba(91, 134, 229, 0.05);
+  border-radius: $radius-md;
+  margin-bottom: $spacing-lg;
+}
+
+.noteIcon {
+  font-size: $font-size-md;
+  margin-right: $spacing-xs;
+}
+
+.noteText {
+  flex: 1;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  line-height: 1.6;
+}
+
+.confirmBtn {
+  @include button-reset;
+  height: $button-height-lg;
+  background: $gradient-primary;
+  color: $color-text-white;
+  border-radius: $radius-button;
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+}

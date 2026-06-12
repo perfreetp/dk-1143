@@ -1,0 +1,479 @@
+@use '@/styles/variables.scss' as *;
+
+.container {
+  min-height: 100vh;
+  background: $color-bg-page;
+  display: flex;
+  flex-direction: column;
+}
+
+.stepIndicator {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: $spacing-lg $page-padding;
+  background: $color-bg-card;
+  border-bottom: 1rpx solid $color-border;
+}
+
+.stepItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  flex: 1;
+}
+
+.stepCircle {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 50%;
+  background: $color-bg-hover;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: $spacing-xs;
+  transition: all $transition-base;
+}
+
+.stepActive {
+  background: $gradient-primary;
+}
+
+.stepNumber {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $color-text-tertiary;
+}
+
+.stepActive .stepNumber {
+  color: $color-text-white;
+}
+
+.stepText {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  text-align: center;
+}
+
+.stepTextActive {
+  color: $color-primary;
+  font-weight: $font-weight-medium;
+}
+
+.stepLine {
+  position: absolute;
+  top: 28rpx;
+  left: 60%;
+  width: 80%;
+  height: 4rpx;
+  background: $color-bg-hover;
+  z-index: -1;
+}
+
+.stepLineActive {
+  background: $gradient-primary;
+}
+
+.scrollContent {
+  flex: 1;
+  padding-bottom: 140rpx;
+}
+
+.formSection {
+  padding: $page-padding;
+}
+
+.formCard {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-md;
+  margin-bottom: $spacing-md;
+  box-shadow: $shadow-card;
+}
+
+.formLabel {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-sm;
+  display: block;
+}
+
+.formInput {
+  width: 100%;
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  background: $color-bg-page;
+  border-radius: $radius-md;
+  padding: 16rpx $spacing-sm;
+  box-sizing: border-box;
+}
+
+.formHint {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-bottom: $spacing-sm;
+  display: block;
+}
+
+.trackGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: $spacing-sm;
+}
+
+.trackItem {
+  padding: 16rpx;
+  background: $color-bg-page;
+  border-radius: $radius-md;
+  text-align: center;
+  transition: all $transition-base;
+  border: 2rpx solid transparent;
+
+  &:active {
+    opacity: 0.8;
+  }
+}
+
+.trackItemActive {
+  background: rgba(91, 134, 229, 0.1);
+  border-color: $color-primary;
+}
+
+.trackText {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.trackItemActive .trackText {
+  color: $color-primary;
+  font-weight: $font-weight-medium;
+}
+
+.uploadArea {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-xl;
+  background: $color-bg-page;
+  border-radius: $radius-md;
+  border: 2rpx dashed $color-border;
+}
+
+.uploadIcon {
+  font-size: 64rpx;
+  margin-bottom: $spacing-sm;
+}
+
+.uploadText {
+  font-size: $font-size-md;
+  color: $color-primary;
+  font-weight: $font-weight-medium;
+  margin-bottom: $spacing-xs;
+}
+
+.uploadHint {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.fileCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-md;
+  background: $color-bg-page;
+  border-radius: $radius-md;
+}
+
+.fileInfo {
+  flex: 1;
+}
+
+.fileName {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+  display: block;
+  margin-bottom: 4rpx;
+}
+
+.fileSize {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.changeFileBtn {
+  @include button-reset;
+  padding: 8rpx 24rpx;
+  background: $color-primary;
+  color: $color-text-white;
+  border-radius: $radius-button;
+  font-size: $font-size-sm;
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $spacing-md;
+}
+
+.sectionTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.sectionCount {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+.memberCard {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-md;
+  margin-bottom: $spacing-sm;
+  box-shadow: $shadow-card;
+}
+
+.memberInfo {
+  display: flex;
+  align-items: center;
+  margin-bottom: $spacing-sm;
+}
+
+.memberAvatar {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  background: $gradient-primary;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: $spacing-sm;
+  font-size: $font-size-lg;
+  color: $color-text-white;
+  font-weight: $font-weight-semibold;
+}
+
+.memberDetail {
+  flex: 1;
+}
+
+.memberName {
+  display: flex;
+  align-items: center;
+  margin-bottom: 4rpx;
+}
+
+.memberNameText {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-right: $spacing-xs;
+}
+
+.leaderBadge {
+  padding: 4rpx 12rpx;
+  background: rgba(91, 134, 229, 0.1);
+  border-radius: $radius-xs;
+}
+
+.leaderText {
+  font-size: 18rpx;
+  color: $color-primary;
+  font-weight: $font-weight-medium;
+}
+
+.memberRole {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.memberStatus {
+  padding: 8rpx 16rpx;
+  border-radius: $radius-button;
+  font-size: $font-size-xs;
+}
+
+.statusConfirmed {
+  background: rgba(82, 196, 26, 0.1);
+  .memberStatusText {
+    color: $color-success;
+  }
+}
+
+.statusPending {
+  background: rgba(250, 173, 20, 0.1);
+  .memberStatusText {
+    color: $color-warning;
+  }
+}
+
+.memberStatusText {
+  font-weight: $font-weight-medium;
+}
+
+.memberActions {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: $spacing-sm;
+  border-top: 1rpx solid $color-border;
+}
+
+.memberActionBtn {
+  @include button-reset;
+  padding: 8rpx 24rpx;
+  background: $color-bg-page;
+  color: $color-error;
+  border-radius: $radius-button;
+  font-size: $font-size-sm;
+}
+
+.addMemberBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-md;
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  border: 2rpx dashed $color-primary;
+  transition: all $transition-base;
+
+  &:active {
+    opacity: 0.8;
+  }
+}
+
+.addMemberIcon {
+  font-size: $font-size-lg;
+  color: $color-primary;
+  margin-right: $spacing-xs;
+}
+
+.addMemberText {
+  font-size: $font-size-md;
+  color: $color-primary;
+  font-weight: $font-weight-medium;
+}
+
+.inviteTip {
+  display: flex;
+  align-items: flex-start;
+  padding: $spacing-md;
+  background: rgba(91, 134, 229, 0.05);
+  border-radius: $radius-md;
+  margin-top: $spacing-md;
+}
+
+.inviteTipIcon {
+  font-size: $font-size-md;
+  margin-right: $spacing-xs;
+}
+
+.inviteTipText {
+  flex: 1;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  line-height: 1.6;
+}
+
+.confirmCard {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  box-shadow: $shadow-card;
+  margin-bottom: $spacing-md;
+}
+
+.confirmTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-md;
+  display: block;
+}
+
+.confirmItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: $spacing-sm 0;
+  border-bottom: 1rpx solid $color-border;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.confirmLabel {
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+}
+
+.confirmValue {
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+}
+
+.agreementCard {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  box-shadow: $shadow-card;
+}
+
+.agreementTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-sm;
+  display: block;
+}
+
+.agreementText {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  line-height: 1.8;
+}
+
+.bottomBar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  gap: $spacing-md;
+  padding: $spacing-md $page-padding;
+  padding-bottom: calc($spacing-md + env(safe-area-inset-bottom));
+  background: $color-bg-card;
+  box-shadow: 0 -2rpx 12rpx rgba(0, 0, 0, 0.05);
+}
+
+.prevBtn {
+  @include button-reset;
+  flex: 1;
+  height: $button-height-lg;
+  background: $color-bg-page;
+  color: $color-text-secondary;
+  border-radius: $radius-button;
+  font-size: $font-size-md;
+  font-weight: $font-weight-medium;
+  border: 2rpx solid $color-border;
+}
+
+.nextBtn {
+  @include button-reset;
+  flex: 2;
+  height: $button-height-lg;
+  background: $gradient-primary;
+  color: $color-text-white;
+  border-radius: $radius-button;
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+}

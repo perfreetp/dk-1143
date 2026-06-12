@@ -1,0 +1,469 @@
+@use '@/styles/variables.scss' as *;
+
+.container {
+  min-height: 100vh;
+  background: $color-bg-page;
+}
+
+.tabHeader {
+  display: flex;
+  background: $color-bg-card;
+  border-bottom: 1rpx solid $color-border;
+  padding: 0 $page-padding;
+}
+
+.tabItem {
+  flex: 1;
+  padding: $spacing-md 0;
+  text-align: center;
+  position: relative;
+  transition: all $transition-base;
+}
+
+.tabText {
+  font-size: $font-size-md;
+  color: $color-text-tertiary;
+  font-weight: $font-weight-medium;
+}
+
+.tabItemActive {
+  .tabText {
+    color: $color-primary;
+    font-weight: $font-weight-semibold;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 64rpx;
+    height: 6rpx;
+    background: $gradient-primary;
+    border-radius: 3rpx;
+  }
+}
+
+.scrollContent {
+  height: calc(100vh - 100rpx);
+}
+
+.tabContent {
+  padding: $page-padding;
+}
+
+.overviewCard {
+  background: $gradient-primary;
+  border-radius: $radius-xl;
+  padding: $spacing-lg;
+  color: $color-text-white;
+  margin-bottom: $spacing-lg;
+}
+
+.projectHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: $spacing-xs;
+}
+
+.projectName {
+  flex: 1;
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  margin-right: $spacing-sm;
+}
+
+.projectBadge {
+  padding: 8rpx 20rpx;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: $radius-button;
+}
+
+.projectBadgeText {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+}
+
+.projectTeam {
+  font-size: $font-size-sm;
+  opacity: 0.9;
+  margin-bottom: 4rpx;
+}
+
+.projectCompetition {
+  font-size: $font-size-xs;
+  opacity: 0.8;
+  margin-bottom: $spacing-md;
+}
+
+.progressSection {
+  padding-top: $spacing-md;
+  border-top: 1rpx solid rgba(255, 255, 255, 0.2);
+}
+
+.progressHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $spacing-xs;
+}
+
+.progressLabel {
+  font-size: $font-size-sm;
+  opacity: 0.9;
+}
+
+.progressPercent {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+}
+
+.progressBar {
+  height: 12rpx;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 6rpx;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: $color-text-white;
+  border-radius: 6rpx;
+  transition: width 0.3s ease;
+}
+
+.sectionTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-md;
+}
+
+.phaseList {
+  margin-bottom: $spacing-lg;
+}
+
+.phaseItem {
+  display: flex;
+  align-items: center;
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-md;
+  margin-bottom: $spacing-sm;
+  box-shadow: $shadow-card;
+}
+
+.phaseIcon {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 50%;
+  background: $color-success;
+  color: $color-text-white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: $spacing-md;
+  font-size: $font-size-md;
+  font-weight: $font-weight-bold;
+}
+
+.phaseIconActive {
+  background: $gradient-primary;
+}
+
+.phaseIconPending {
+  background: $color-bg-hover;
+  color: $color-text-tertiary;
+}
+
+.phaseContent {
+  flex: 1;
+}
+
+.phaseTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  display: block;
+  margin-bottom: 4rpx;
+}
+
+.phaseTime {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+.phaseStatus {
+  padding: 8rpx 20rpx;
+  border-radius: $radius-button;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+}
+
+.statusCompleted {
+  color: $color-success;
+  background: rgba(82, 196, 26, 0.1);
+  padding: 8rpx 20rpx;
+  border-radius: $radius-button;
+}
+
+.statusOngoing {
+  color: $color-primary;
+  background: rgba(91, 134, 229, 0.1);
+  padding: 8rpx 20rpx;
+  border-radius: $radius-button;
+}
+
+.statusPending {
+  color: $color-text-tertiary;
+  background: $color-bg-hover;
+  padding: 8rpx 20rpx;
+  border-radius: $radius-button;
+}
+
+.timeline {
+  position: relative;
+}
+
+.timelineItem {
+  display: flex;
+  margin-bottom: $spacing-lg;
+}
+
+.timelineLeft {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-right: $spacing-md;
+}
+
+.timelineDot {
+  width: 48rpx;
+  height: 48rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-bold;
+  color: $color-text-white;
+  background: $color-bg-hover;
+  color: $color-text-tertiary;
+  position: relative;
+}
+
+.dotCompleted {
+  background: $color-success;
+}
+
+.dotCurrent {
+  background: $gradient-primary;
+}
+
+.dotPending {
+  background: $color-bg-hover;
+}
+
+.dotPulse {
+  width: 16rpx;
+  height: 16rpx;
+  background: $color-text-white;
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.timelineLine {
+  width: 4rpx;
+  flex: 1;
+  background: $color-bg-hover;
+  margin-top: $spacing-xs;
+  min-height: 80rpx;
+}
+
+.lineCompleted {
+  background: $color-success;
+}
+
+.timelineContent {
+  flex: 1;
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-md;
+  box-shadow: $shadow-card;
+}
+
+.timelineHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $spacing-xs;
+}
+
+.timelineTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.timelineTime {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.timelineDesc {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  line-height: 1.6;
+}
+
+.currentBadge {
+  display: inline-block;
+  margin-top: $spacing-xs;
+  padding: 4rpx 12rpx;
+  background: rgba(91, 134, 229, 0.1);
+  border-radius: $radius-xs;
+}
+
+.currentBadgeText {
+  font-size: 18rpx;
+  color: $color-primary;
+  font-weight: $font-weight-medium;
+}
+
+.todoList {
+  margin-bottom: $spacing-lg;
+}
+
+.todoItem {
+  display: flex;
+  align-items: center;
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-md;
+  margin-bottom: $spacing-sm;
+  box-shadow: $shadow-card;
+}
+
+.todoCheckbox {
+  margin-right: $spacing-md;
+}
+
+.checkbox {
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: 50%;
+  border: 3rpx solid $color-border;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all $transition-base;
+}
+
+.checkboxChecked {
+  background: $color-success;
+  border-color: $color-success;
+}
+
+.checkmark {
+  color: $color-text-white;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-bold;
+}
+
+.todoContent {
+  flex: 1;
+}
+
+.todoTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+  margin-bottom: $spacing-xs;
+  display: block;
+}
+
+.todoTitleCompleted {
+  text-decoration: line-through;
+  color: $color-text-tertiary;
+}
+
+.todoMeta {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.priorityTag {
+  padding: 4rpx 12rpx;
+  border-radius: $radius-xs;
+  font-size: 18rpx;
+  font-weight: $font-weight-medium;
+}
+
+.priorityHigh {
+  background: rgba(245, 63, 63, 0.1);
+  .priorityText {
+    color: $color-error;
+  }
+}
+
+.priorityMedium {
+  background: rgba(250, 173, 20, 0.1);
+  .priorityText {
+    color: $color-warning;
+  }
+}
+
+.priorityLow {
+  background: rgba(134, 144, 156, 0.1);
+  .priorityText {
+    color: $color-text-tertiary;
+  }
+}
+
+.priorityText {
+  font-weight: $font-weight-medium;
+}
+
+.todoDeadline {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.todoAction {
+  @include button-reset;
+  padding: 12rpx 32rpx;
+  background: $gradient-primary;
+  color: $color-text-white;
+  border-radius: $radius-button;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  margin-left: $spacing-sm;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 100rpx 40rpx;
+}
+
+.emptyIcon {
+  font-size: 120rpx;
+  display: block;
+  margin-bottom: $spacing-md;
+}
+
+.emptyText {
+  font-size: $font-size-md;
+  color: $color-text-tertiary;
+}
