@@ -1,0 +1,354 @@
+@use '@/styles/variables.scss' as *;
+
+.container {
+  min-height: 100vh;
+  background: $color-bg-page;
+}
+
+.header {
+  position: relative;
+  height: 400rpx;
+}
+
+.coverImage {
+  width: 100%;
+  height: 100%;
+}
+
+.headerOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,0.3) 0%, transparent 50%, rgba(0,0,0,0.6) 100%);
+}
+
+.backBtn {
+  position: absolute;
+  top: calc(env(safe-area-inset-top) + 20rpx);
+  left: $page-padding;
+  width: 64rpx;
+  height: 64rpx;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  backdrop-filter: blur(10px);
+}
+
+.backIcon {
+  font-size: 32rpx;
+  color: $color-text-primary;
+}
+
+.headerContent {
+  position: absolute;
+  bottom: $spacing-lg;
+  left: $page-padding;
+  right: $page-padding;
+  z-index: 5;
+}
+
+.title {
+  font-size: $font-size-xxl;
+  font-weight: $font-weight-bold;
+  color: $color-text-white;
+  margin-bottom: $spacing-xs;
+  text-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.3);
+}
+
+.subtitle {
+  font-size: $font-size-md;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: $spacing-sm;
+}
+
+.statusBadge {
+  display: inline-block;
+  padding: 8rpx 24rpx;
+  border-radius: $radius-button;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  margin-right: $spacing-sm;
+}
+
+.statusOngoing {
+  background: rgba(82, 196, 26, 0.9);
+  color: $color-text-white;
+}
+
+.statusUpcoming {
+  background: rgba(91, 134, 229, 0.9);
+  color: $color-text-white;
+}
+
+.statusEnded {
+  background: rgba(134, 144, 156, 0.9);
+  color: $color-text-white;
+}
+
+.content {
+  padding: $page-padding;
+  padding-bottom: 200rpx;
+}
+
+.infoCard {
+  background: $color-bg-card;
+  border-radius: $radius-xl;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+  box-shadow: $shadow-card;
+}
+
+.infoGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: $spacing-md;
+  margin-bottom: $spacing-md;
+}
+
+.infoItem {
+  text-align: center;
+}
+
+.infoValue {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+  color: $color-primary;
+  display: block;
+  margin-bottom: 4rpx;
+}
+
+.infoLabel {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.section {
+  background: $color-bg-card;
+  border-radius: $radius-xl;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+  box-shadow: $shadow-card;
+}
+
+.sectionTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-md;
+  display: flex;
+  align-items: center;
+}
+
+.sectionIcon {
+  font-size: 36rpx;
+  margin-right: $spacing-xs;
+}
+
+.description {
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+  line-height: 1.8;
+}
+
+.requirementsList {
+  margin-top: $spacing-sm;
+}
+
+.requirementItem {
+  display: flex;
+  align-items: flex-start;
+  padding: $spacing-sm 0;
+  border-bottom: 1rpx solid $color-border;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.requirementBullet {
+  width: 40rpx;
+  height: 40rpx;
+  background: rgba(91, 134, 229, 0.1);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: $spacing-sm;
+  flex-shrink: 0;
+}
+
+.requirementBulletText {
+  font-size: $font-size-xs;
+  color: $color-primary;
+  font-weight: $font-weight-bold;
+}
+
+.requirementText {
+  flex: 1;
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+  line-height: 1.6;
+}
+
+.processList {
+  margin-top: $spacing-sm;
+}
+
+.processItem {
+  display: flex;
+  align-items: flex-start;
+  padding: $spacing-md 0;
+  position: relative;
+}
+
+.processLeft {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-right: $spacing-md;
+}
+
+.processStep {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 50%;
+  background: $gradient-primary;
+  color: $color-text-white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-bold;
+  flex-shrink: 0;
+}
+
+.processLine {
+  width: 4rpx;
+  flex: 1;
+  background: $color-border;
+  margin-top: $spacing-xs;
+  min-height: 60rpx;
+}
+
+.processLineActive {
+  background: $gradient-primary;
+}
+
+.processContent {
+  flex: 1;
+  padding-bottom: $spacing-md;
+}
+
+.processTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  display: block;
+  margin-bottom: 4rpx;
+}
+
+.processTime {
+  font-size: $font-size-sm;
+  color: $color-primary;
+  font-weight: $font-weight-medium;
+  margin-bottom: 4rpx;
+}
+
+.processDesc {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+.awardsList {
+  margin-top: $spacing-sm;
+}
+
+.awardItem {
+  display: flex;
+  align-items: center;
+  padding: $spacing-md;
+  background: $color-bg-page;
+  border-radius: $radius-lg;
+  margin-bottom: $spacing-sm;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 8rpx;
+    background: $gradient-primary;
+  }
+}
+
+.awardRank {
+  width: 80rpx;
+  text-align: center;
+  margin-right: $spacing-md;
+}
+
+.awardRankText {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+  color: $color-primary;
+  display: block;
+}
+
+.awardNameText {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.awardInfo {
+  flex: 1;
+}
+
+.awardPrize {
+  font-size: $font-size-md;
+  font-weight: $font-weight-bold;
+  color: $color-text-primary;
+  display: block;
+  margin-bottom: 4rpx;
+}
+
+.awardCount {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+.bottomBar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: $spacing-md $page-padding;
+  padding-bottom: calc($spacing-md + env(safe-area-inset-bottom));
+  background: $color-bg-card;
+  box-shadow: 0 -2rpx 12rpx rgba(0, 0, 0, 0.05);
+  display: flex;
+  gap: $spacing-md;
+}
+
+.applyBtn {
+  @include button-reset;
+  flex: 1;
+  height: $button-height-lg;
+  background: $gradient-primary;
+  color: $color-text-white;
+  border-radius: $radius-button;
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+}
+
+.disabledBtn {
+  background: $color-bg-hover;
+  color: $color-text-tertiary;
+}

@@ -1,13 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, Input } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import CompetitionCard from '@/components/CompetitionCard';
 import { mockCompetitions } from '@/data/competitions';
+import { useAppContext } from '@/store/AppContext';
 import styles from './index.module.scss';
 
 const HomePage: React.FC = () => {
-  const [searchKeyword, setSearchKeyword] = useState('');
-  const [activeFilter, setActiveFilter] = useState('all');
+  const { searchKeyword, filterStatus, setSearchKeyword, setFilterStatus } = useAppContext();
+  const [localKeyword, setLocalKeyword] = useState(searchKeyword);
+  const [activeFilter, setActiveFilter] = useState(filterStatus);
+
+  useEffect(() => {
+    setLocalKeyword(searchKeyword);
+    setActiveFilter(filterStatus);
+  }, [searchKeyword, filterStatus]);
 
   const filters = [
     { key: 'all', label: '全部' },
@@ -17,18 +24,21 @@ const HomePage: React.FC = () => {
   ];
 
   const filteredCompetitions = mockCompetitions.filter(competition => {
-    const matchesSearch = competition.title.toLowerCase().includes(searchKeyword.toLowerCase()) ||
-                         competition.subtitle.toLowerCase().includes(searchKeyword.toLowerCase());
+    const matchesSearch = competition.title.toLowerCase().includes(localKeyword.toLowerCase()) ||
+                         competition.subtitle.toLowerCase().includes(localKeyword.toLowerCase());
     const matchesFilter = activeFilter === 'all' || competition.status === activeFilter;
     return matchesSearch && matchesFilter;
   });
 
   const handleSearch = (e: any) => {
-    setSearchKeyword(e.detail.value);
+    const value = e.detail.value;
+    setLocalKeyword(value);
+    setSearchKeyword(value);
   };
 
   const handleFilterChange = (filterKey: string) => {
     setActiveFilter(filterKey);
+    setFilterStatus(filterKey);
   };
 
   const handleQuickAction = (action: string) => {
@@ -69,9 +79,8 @@ const HomePage: React.FC = () => {
           <Input
             className={styles.searchInput}
             placeholder='搜索赛事...'
-            placeholderClass={styles.searchInput}
             onInput={handleSearch}
-            value={searchKeyword}
+            value={localKeyword}
           />
         </View>
 

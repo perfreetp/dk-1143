@@ -1,28 +1,45 @@
-import React, { useState } from 'react';
-import { View, Text, Input, Button, ScrollView, Image } from '@tarojs/components';
+import React, { useState, useEffect } from 'react';
+import { View, Text, Input, Button, ScrollView } from '@tarojs/components';
 import Taro from '@tarojs/taro';
+import { useAppContext, TeamMember } from '@/store/AppContext';
 import styles from './index.module.scss';
 
-interface TeamMember {
-  id: string;
-  name: string;
-  role: string;
-  phone: string;
-  email: string;
-  avatar?: string;
-  status: 'confirmed' | 'pending';
-}
-
 const ApplyPage: React.FC = () => {
+  const { application, updateApplication, setApplication, addApplication, selectedCompetitionId } = useAppContext();
+  
   const [currentStep, setCurrentStep] = useState(1);
   const [teamName, setTeamName] = useState('');
   const [teamSlogan, setTeamSlogan] = useState('');
   const [selectedTrack, setSelectedTrack] = useState('');
-  const [businessPlanFile, setBusinessPlanFile] = useState<any>(null);
-  const [members, setMembers] = useState<TeamMember[]>([
-    { id: '1', name: '张三', role: '队长', phone: '13800138000', email: 'zhangsan@example.com', status: 'confirmed' }
-  ]);
+  const [projectIntro, setProjectIntro] = useState('');
+  const [businessPlanFile, setBusinessPlanFile] = useState<{ name: string; size: string } | null>(null);
+  const [members, setMembers] = useState<TeamMember[]>([]);
   const [showAddMember, setShowAddMember] = useState(false);
+  const [newMemberName, setNewMemberName] = useState('');
+  const [newMemberRole, setNewMemberRole] = useState('');
+  const [newMemberPhone, setNewMemberPhone] = useState('');
+  const [newMemberEmail, setNewMemberEmail] = useState('');
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    if (application) {
+      setTeamName(application.teamName);
+      setTeamSlogan(application.teamSlogan);
+      setSelectedTrack(application.track);
+      setProjectIntro(application.projectIntro);
+      setBusinessPlanFile(application.businessPlanFile);
+      setMembers(application.members);
+    } else {
+      setMembers([{
+        id: '1',
+        name: '我',
+        role: '队长',
+        phone: '',
+        email: '',
+        status: 'confirmed'
+      }]);
+    }
+  }, [application]);
 
   const tracks = [
     '科技创新',
@@ -39,9 +56,65 @@ const ApplyPage: React.FC = () => {
     { step: 4, title: '确认提交' }
   ];
 
+  const validateStep1 = () => {
+    const newErrors: Record<string, string> = {};
+    if (!teamName.trim()) {
+      newErrors.teamName = '请输入团队名称';
+    }
+    if (!selectedTrack) {
+      newErrors.track = '请选择参赛赛道';
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const validateStep2 = () => {
+    const newErrors: Record<string, string> = {};
+    if (!projectIntro.trim()) {
+      newErrors.projectIntro = '请输入项目简介';
+    } else if (projectIntro.trim().length < 50) {
+      newErrors.projectIntro = '项目简介至少50个字';
+    }
+    if (!businessPlanFile) {
+      newErrors.businessPlan = '请上传商业计划书';
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const validateStep3 = () => {
+    const newErrors: Record<string, string> = {};
+    const confirmedMembers = members.filter(m => m.status === 'confirmed');
+    if (confirmedMembers.length < 2) {
+      newErrors.members = '至少需要2名已确认的团队成员';
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleNext = () => {
+    if (currentStep === 1) {
+      if (!validateStep1()) {
+        Taro.showToast({ title: '请完善必填信息', icon: 'none' });
+        return;
+      }
+    } else if (currentStep === 2) {
+      if (!validateStep2()) {
+        Taro.showToast({ title: '请完善必填信息', icon: 'none' });
+        return;
+      }
+    } else if (currentStep === 3) {
+      if (!validateStep3()) {
+        Taro.showToast({ title: '请完善团队信息', icon: 'none' });
+        return;
+      }
+    }
+
+    saveApplicationData();
+
     if (currentStep < 4) {
       setCurrentStep(currentStep + 1);
+      setErrors({});
     } else {
       handleSubmit();
     }
@@ -49,8 +122,25 @@ const ApplyPage: React.FC = () => {
 
   const handlePrev = () => {
     if (currentStep > 1) {
+      saveApplicationData();
       setCurrentStep(currentStep - 1);
+      setErrors({});
     }
+  };
+
+  const saveApplicationData = () => {
+    const appData = {
+      competitionId: selectedCompetitionId || application?.competitionId || '',
+      competitionName: application?.competitionName || '',
+      teamName,
+      teamSlogan,
+      track: selectedTrack,
+      projectIntro,
+      businessPlanFile,
+      members,
+      status: 'draft' as const
+    };
+    setApplication(appData);
   };
 
   const handleSubmit = () => {
@@ -60,6 +150,23 @@ const ApplyPage: React.FC = () => {
       success: (res) => {
         if (res.confirm) {
           Taro.showLoading({ title: '提交中...' });
+          
+          const submittedApp = {
+            competitionId: selectedCompetitionId || application?.competitionId || '',
+            competitionName: application?.competitionName || '',
+            teamName,
+            teamSlogan,
+            track: selectedTrack,
+            projectIntro,
+            businessPlanFile,
+            members,
+            status: 'submitted' as const,
+            submittedAt: new Date().toISOString()
+          };
+
+          setApplication(submittedApp);
+          addApplication(submittedApp);
+
           setTimeout(() => {
             Taro.hideLoading();
             Taro.showToast({
@@ -81,10 +188,12 @@ const ApplyPage: React.FC = () => {
       type: 'file',
       success: (res) => {
         const file = res.tempFiles[0];
-        setBusinessPlanFile({
+        const fileData = {
           name: file.name,
           size: (file.size / 1024).toFixed(2) + 'KB'
-        });
+        };
+        setBusinessPlanFile(fileData);
+        saveApplicationData();
         Taro.showToast({
           title: '上传成功',
           icon: 'success'
@@ -94,16 +203,38 @@ const ApplyPage: React.FC = () => {
   };
 
   const handleAddMember = () => {
+    if (!newMemberName.trim()) {
+      Taro.showToast({ title: '请输入成员姓名', icon: 'none' });
+      return;
+    }
+    if (!newMemberRole.trim()) {
+      Taro.showToast({ title: '请输入成员角色', icon: 'none' });
+      return;
+    }
+
     const newMember: TeamMember = {
       id: Date.now().toString(),
-      name: '新成员',
-      role: '成员',
-      phone: '',
-      email: '',
+      name: newMemberName.trim(),
+      role: newMemberRole.trim(),
+      phone: newMemberPhone.trim(),
+      email: newMemberEmail.trim(),
       status: 'pending'
     };
-    setMembers([...members, newMember]);
+
+    const updatedMembers = [...members, newMember];
+    setMembers(updatedMembers);
+    saveApplicationData();
+
+    setNewMemberName('');
+    setNewMemberRole('');
+    setNewMemberPhone('');
+    setNewMemberEmail('');
     setShowAddMember(false);
+
+    Taro.showToast({
+      title: '已添加成员',
+      icon: 'success'
+    });
   };
 
   const handleRemoveMember = (memberId: string) => {
@@ -114,7 +245,25 @@ const ApplyPage: React.FC = () => {
       });
       return;
     }
-    setMembers(members.filter(m => m.id !== memberId));
+    const updatedMembers = members.filter(m => m.id !== memberId);
+    setMembers(updatedMembers);
+    saveApplicationData();
+  };
+
+  const handleConfirmMember = (memberId: string) => {
+    const updatedMembers = members.map(m => 
+      m.id === memberId ? { ...m, status: 'confirmed' as const } : m
+    );
+    setMembers(updatedMembers);
+    saveApplicationData();
+    Taro.showToast({
+      title: '成员已确认',
+      icon: 'success'
+    });
+  };
+
+  const handleProjectIntroChange = (e: any) => {
+    setProjectIntro(e.detail.value);
   };
 
   const renderStepIndicator = () => (
@@ -140,11 +289,15 @@ const ApplyPage: React.FC = () => {
       <View className={styles.formCard}>
         <Text className={styles.formLabel}>团队名称 *</Text>
         <Input
-          className={styles.formInput}
+          className={`${styles.formInput} ${errors.teamName ? styles.inputError : ''}`}
           placeholder='请输入团队名称'
           value={teamName}
-          onInput={(e) => setTeamName(e.detail.value)}
+          onInput={(e) => {
+            setTeamName(e.detail.value);
+            if (errors.teamName) setErrors({...errors, teamName: ''});
+          }}
         />
+        {errors.teamName && <Text className={styles.errorText}>{errors.teamName}</Text>}
       </View>
 
       <View className={styles.formCard}>
@@ -164,12 +317,16 @@ const ApplyPage: React.FC = () => {
             <View
               key={track}
               className={`${styles.trackItem} ${selectedTrack === track ? styles.trackItemActive : ''}`}
-              onClick={() => setSelectedTrack(track)}
+              onClick={() => {
+                setSelectedTrack(track);
+                if (errors.track) setErrors({...errors, track: ''});
+              }}
             >
               <Text className={styles.trackText}>{track}</Text>
             </View>
           ))}
         </View>
+        {errors.track && <Text className={styles.errorText}>{errors.track}</Text>}
       </View>
     </View>
   );
@@ -189,22 +346,29 @@ const ApplyPage: React.FC = () => {
             <Button className={styles.changeFileBtn} onClick={handleFileUpload}>更换</Button>
           </View>
         ) : (
-          <View className={styles.uploadArea} onClick={handleFileUpload}>
+          <View className={`${styles.uploadArea} ${errors.businessPlan ? styles.uploadAreaError : ''}`} onClick={handleFileUpload}>
             <Text className={styles.uploadIcon}>📄</Text>
             <Text className={styles.uploadText}>点击上传商业计划书</Text>
             <Text className={styles.uploadHint}>支持 PDF、Word 格式</Text>
           </View>
         )}
+        {errors.businessPlan && <Text className={styles.errorText}>{errors.businessPlan}</Text>}
       </View>
 
       <View className={styles.formCard}>
         <Text className={styles.formLabel}>项目简介 *</Text>
-        <Input
-          className={styles.formInput}
-          placeholder='请简要描述您的项目（200字以内）'
-          value=''
-          onInput={() => {}}
-        />
+        <View className={styles.textareaWrapper}>
+          <Input
+            className={`${styles.textarea} ${errors.projectIntro ? styles.inputError : ''}`}
+            placeholder='请简要描述您的项目（至少50字）'
+            value={projectIntro}
+            onInput={handleProjectIntroChange}
+            type='textarea'
+            maxlength={500}
+          />
+        </View>
+        <Text className={styles.charCount}>{projectIntro.length}/500</Text>
+        {errors.projectIntro && <Text className={styles.errorText}>{errors.projectIntro}</Text>}
       </View>
     </View>
   );
@@ -228,6 +392,9 @@ const ApplyPage: React.FC = () => {
                 {index === 0 && <View className={styles.leaderBadge}><Text className={styles.leaderText}>队长</Text></View>}
               </View>
               <Text className={styles.memberRole}>{member.role}</Text>
+              {(member.phone || member.email) && (
+                <Text className={styles.memberContact}>{member.phone || member.email}</Text>
+              )}
             </View>
             <View className={`${styles.memberStatus} ${member.status === 'confirmed' ? styles.statusConfirmed : styles.statusPending}`}>
               <Text className={styles.memberStatusText}>
@@ -236,20 +403,74 @@ const ApplyPage: React.FC = () => {
             </View>
           </View>
           <View className={styles.memberActions}>
-            <Button className={styles.memberActionBtn} onClick={() => handleRemoveMember(member.id)}>移除</Button>
+            {member.status === 'pending' && (
+              <Button className={styles.confirmBtn} onClick={() => handleConfirmMember(member.id)}>确认</Button>
+            )}
+            {index > 0 && (
+              <Button className={styles.memberActionBtn} onClick={() => handleRemoveMember(member.id)}>移除</Button>
+            )}
           </View>
         </View>
       ))}
 
-      <View className={styles.addMemberBtn} onClick={handleAddMember}>
-        <Text className={styles.addMemberIcon}>+</Text>
-        <Text className={styles.addMemberText}>添加团队成员</Text>
-      </View>
+      {errors.members && <Text className={styles.errorText}>{errors.members}</Text>}
+
+      {showAddMember ? (
+        <View className={styles.addMemberForm}>
+          <View className={styles.formCard}>
+            <Text className={styles.formLabel}>姓名 *</Text>
+            <Input
+              className={styles.formInput}
+              placeholder='请输入成员姓名'
+              value={newMemberName}
+              onInput={(e) => setNewMemberName(e.detail.value)}
+            />
+          </View>
+          <View className={styles.formCard}>
+            <Text className={styles.formLabel}>角色 *</Text>
+            <Input
+              className={styles.formInput}
+              placeholder='如：技术负责人、运营总监'
+              value={newMemberRole}
+              onInput={(e) => setNewMemberRole(e.detail.value)}
+            />
+          </View>
+          <View className={styles.formCard}>
+            <Text className={styles.formLabel}>手机号</Text>
+            <Input
+              className={styles.formInput}
+              placeholder='请输入手机号（选填）'
+              value={newMemberPhone}
+              onInput={(e) => setNewMemberPhone(e.detail.value)}
+              type='phone'
+            />
+          </View>
+          <View className={styles.formCard}>
+            <Text className={styles.formLabel}>邮箱</Text>
+            <Input
+              className={styles.formInput}
+              placeholder='请输入邮箱（选填）'
+              value={newMemberEmail}
+              onInput={(e) => setNewMemberEmail(e.detail.value)}
+              type='email'
+            />
+          </View>
+          <View className={styles.addMemberActions}>
+            <Button className={styles.cancelBtn} onClick={() => setShowAddMember(false)}>取消</Button>
+            <Button className={styles.confirmAddBtn} onClick={handleAddMember}>确认添加</Button>
+          </View>
+        </View>
+      ) : (
+        <View className={styles.addMemberBtn} onClick={() => setShowAddMember(true)}>
+          <Text className={styles.addMemberIcon}>+</Text>
+          <Text className={styles.addMemberText}>添加团队成员</Text>
+        </View>
+      )}
 
       <View className={styles.inviteTip}>
         <Text className={styles.inviteTipIcon}>💡</Text>
         <Text className={styles.inviteTipText}>
-          成员添加后，可以通过邀请链接或手机号邀请成员确认加入团队
+          成员添加后状态为"待确认"，成员确认后状态变为"已确认"。可通过手机号或邮箱联系成员确认加入。
         </Text>
       </View>
     </View>
@@ -260,6 +481,11 @@ const ApplyPage: React.FC = () => {
       <View className={styles.confirmCard}>
         <Text className={styles.confirmTitle}>报名信息确认</Text>
         
+        <View className={styles.confirmItem}>
+          <Text className={styles.confirmLabel}>参赛赛事</Text>
+          <Text className={styles.confirmValue}>{application?.competitionName || '未选择'}</Text>
+        </View>
+
         <View className={styles.confirmItem}>
           <Text className={styles.confirmLabel}>团队名称</Text>
           <Text className={styles.confirmValue}>{teamName || '未填写'}</Text>
@@ -276,8 +502,27 @@ const ApplyPage: React.FC = () => {
         </View>
 
         <View className={styles.confirmItem}>
+          <Text className={styles.confirmLabel}>项目简介</Text>
+          <Text className={styles.confirmValueMulti}>{projectIntro || '未填写'}</Text>
+        </View>
+
+        <View className={styles.confirmItem}>
           <Text className={styles.confirmLabel}>团队成员</Text>
           <Text className={styles.confirmValue}>{members.length}人</Text>
+        </View>
+        
+        <View className={styles.membersList}>
+          {members.map((member, index) => (
+            <View key={member.id} className={styles.memberConfirmItem}>
+              <Text className={styles.memberConfirmName}>{member.name}</Text>
+              <Text className={styles.memberConfirmRole}>{member.role}</Text>
+              <View className={`${styles.memberConfirmStatus} ${member.status === 'confirmed' ? styles.statusConfirmed : styles.statusPending}`}>
+                <Text className={styles.memberConfirmStatusText}>
+                  {member.status === 'confirmed' ? '已确认' : '待确认'}
+                </Text>
+              </View>
+            </View>
+          ))}
         </View>
       </View>
 
@@ -295,10 +540,8 @@ const ApplyPage: React.FC = () => {
 
   return (
     <View className={styles.container}>
-      {/* Step Indicator */}
       {renderStepIndicator()}
 
-      {/* Form Content */}
       <ScrollView className={styles.scrollContent} scrollY>
         {currentStep === 1 && renderBasicInfo()}
         {currentStep === 2 && renderBusinessPlan()}
@@ -306,7 +549,6 @@ const ApplyPage: React.FC = () => {
         {currentStep === 4 && renderConfirmSubmit()}
       </ScrollView>
 
-      {/* Bottom Action Bar */}
       <View className={styles.bottomBar}>
         {currentStep > 1 && (
           <Button className={styles.prevBtn} onClick={handlePrev}>

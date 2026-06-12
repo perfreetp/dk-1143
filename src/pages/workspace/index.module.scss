@@ -53,6 +53,41 @@
   padding: $page-padding;
 }
 
+.emptyStateContainer {
+  text-align: center;
+  padding: 100rpx $page-padding;
+}
+
+.emptyIcon {
+  font-size: 120rpx;
+  display: block;
+  margin-bottom: $spacing-md;
+}
+
+.emptyTitle {
+  font-size: $font-size-xl;
+  color: $color-text-primary;
+  font-weight: $font-weight-semibold;
+  margin-bottom: $spacing-sm;
+}
+
+.emptyDesc {
+  font-size: $font-size-md;
+  color: $color-text-tertiary;
+  margin-bottom: $spacing-xl;
+}
+
+.gotoApplyBtn {
+  @include button-reset;
+  width: 300rpx;
+  height: $button-height-lg;
+  background: $gradient-primary;
+  color: $color-text-white;
+  border-radius: $radius-button;
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+}
+
 .overviewCard {
   background: $gradient-primary;
   border-radius: $radius-xl;
@@ -95,6 +130,12 @@
 .projectCompetition {
   font-size: $font-size-xs;
   opacity: 0.8;
+  margin-bottom: 4rpx;
+}
+
+.projectTrack {
+  font-size: $font-size-xs;
+  opacity: 0.8;
   margin-bottom: $spacing-md;
 }
 
@@ -132,6 +173,129 @@
   background: $color-text-white;
   border-radius: 6rpx;
   transition: width 0.3s ease;
+}
+
+.detailsCard {
+  background: $color-bg-card;
+  border-radius: $radius-xl;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-lg;
+  box-shadow: $shadow-card;
+}
+
+.detailsTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-md;
+  display: block;
+}
+
+.detailItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: $spacing-sm 0;
+  border-bottom: 1rpx solid $color-border;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.detailLabel {
+  font-size: $font-size-md;
+  color: $color-text-tertiary;
+}
+
+.detailValue {
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+}
+
+.statusText {
+  color: $color-primary;
+}
+
+.membersPreview {
+  background: $color-bg-card;
+  border-radius: $radius-xl;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-lg;
+  box-shadow: $shadow-card;
+}
+
+.membersPreviewTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-md;
+  display: block;
+}
+
+.membersScroll {
+  white-space: nowrap;
+}
+
+.memberPreviewItem {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  margin-right: $spacing-md;
+  min-width: 140rpx;
+  padding: $spacing-sm;
+  background: $color-bg-page;
+  border-radius: $radius-lg;
+}
+
+.memberPreviewAvatar {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  background: $gradient-primary;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: $spacing-xs;
+  font-size: $font-size-lg;
+  color: $color-text-white;
+  font-weight: $font-weight-bold;
+}
+
+.memberPreviewName {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: 4rpx;
+  max-width: 120rpx;
+  @include text-ellipsis;
+}
+
+.memberPreviewRole {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-bottom: 4rpx;
+}
+
+.memberPreviewStatus {
+  padding: 4rpx 12rpx;
+  border-radius: $radius-button;
+  font-size: 18rpx;
+}
+
+.memberPreviewStatus Text {
+  font-weight: $font-weight-medium;
+}
+
+.statusConfirmed {
+  background: rgba(82, 196, 26, 0.1);
+  color: $color-success;
+}
+
+.statusPending {
+  background: rgba(250, 173, 20, 0.1);
+  color: $color-warning;
 }
 
 .sectionTitle {

@@ -108,6 +108,19 @@
   border-radius: $radius-md;
   padding: 16rpx $spacing-sm;
   box-sizing: border-box;
+  min-height: 80rpx;
+}
+
+.inputError {
+  border: 2rpx solid $color-error;
+  background: rgba(245, 63, 63, 0.05);
+}
+
+.errorText {
+  font-size: $font-size-xs;
+  color: $color-error;
+  margin-top: $spacing-xs;
+  display: block;
 }
 
 .formHint {
@@ -162,6 +175,11 @@
   border: 2rpx dashed $color-border;
 }
 
+.uploadAreaError {
+  border-color: $color-error;
+  background: rgba(245, 63, 63, 0.05);
+}
+
 .uploadIcon {
   font-size: 64rpx;
   margin-bottom: $spacing-sm;
@@ -214,6 +232,29 @@
   font-size: $font-size-sm;
 }
 
+.textareaWrapper {
+  margin-bottom: $spacing-xs;
+}
+
+.textarea {
+  width: 100%;
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  background: $color-bg-page;
+  border-radius: $radius-md;
+  padding: 16rpx $spacing-sm;
+  box-sizing: border-box;
+  min-height: 200rpx;
+  text-align: left;
+}
+
+.charCount {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  text-align: right;
+  display: block;
+}
+
 .sectionHeader {
   display: flex;
   justify-content: space-between;
@@ -242,7 +283,7 @@
 
 .memberInfo {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   margin-bottom: $spacing-sm;
 }
 
@@ -258,6 +299,7 @@
   font-size: $font-size-lg;
   color: $color-text-white;
   font-weight: $font-weight-semibold;
+  flex-shrink: 0;
 }
 
 .memberDetail {
@@ -292,12 +334,20 @@
 .memberRole {
   font-size: $font-size-sm;
   color: $color-text-secondary;
+  display: block;
+  margin-bottom: 4rpx;
+}
+
+.memberContact {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
 }
 
 .memberStatus {
   padding: 8rpx 16rpx;
   border-radius: $radius-button;
   font-size: $font-size-xs;
+  flex-shrink: 0;
 }
 
 .statusConfirmed {
@@ -321,8 +371,18 @@
 .memberActions {
   display: flex;
   justify-content: flex-end;
+  gap: $spacing-sm;
   padding-top: $spacing-sm;
   border-top: 1rpx solid $color-border;
+}
+
+.confirmBtn {
+  @include button-reset;
+  padding: 8rpx 24rpx;
+  background: $color-success;
+  color: $color-text-white;
+  border-radius: $radius-button;
+  font-size: $font-size-sm;
 }
 
 .memberActionBtn {
@@ -359,6 +419,42 @@
   font-size: $font-size-md;
   color: $color-primary;
   font-weight: $font-weight-medium;
+}
+
+.addMemberForm {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-md;
+  margin-bottom: $spacing-md;
+  box-shadow: $shadow-card;
+}
+
+.addMemberActions {
+  display: flex;
+  gap: $spacing-sm;
+  margin-top: $spacing-md;
+}
+
+.cancelBtn {
+  @include button-reset;
+  flex: 1;
+  height: $button-height-md;
+  background: $color-bg-page;
+  color: $color-text-secondary;
+  border-radius: $radius-button;
+  font-size: $font-size-md;
+  border: 2rpx solid $color-border;
+}
+
+.confirmAddBtn {
+  @include button-reset;
+  flex: 2;
+  height: $button-height-md;
+  background: $gradient-primary;
+  color: $color-text-white;
+  border-radius: $radius-button;
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
 }
 
 .inviteTip {
@@ -400,8 +496,7 @@
 
 .confirmItem {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
   padding: $spacing-sm 0;
   border-bottom: 1rpx solid $color-border;
 
@@ -411,13 +506,61 @@
 }
 
 .confirmLabel {
-  font-size: $font-size-md;
-  color: $color-text-secondary;
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  margin-bottom: 4rpx;
+  display: block;
 }
 
 .confirmValue {
   font-size: $font-size-md;
   color: $color-text-primary;
+  font-weight: $font-weight-medium;
+}
+
+.confirmValueMulti {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  line-height: 1.6;
+}
+
+.membersList {
+  margin-top: $spacing-sm;
+}
+
+.memberConfirmItem {
+  display: flex;
+  align-items: center;
+  padding: $spacing-sm 0;
+  border-bottom: 1rpx solid $color-border;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.memberConfirmName {
+  flex: 1;
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+}
+
+.memberConfirmRole {
+  margin-left: $spacing-sm;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  flex: 1;
+}
+
+.memberConfirmStatus {
+  margin-left: $spacing-sm;
+  padding: 4rpx 12rpx;
+  border-radius: $radius-button;
+  font-size: 18rpx;
+}
+
+.memberConfirmStatusText {
   font-weight: $font-weight-medium;
 }
 

@@ -41,7 +41,7 @@ const CompetitionCard: React.FC<Props> = ({ competition, onClick }) => {
       onClick();
     } else {
       Taro.navigateTo({
-        url: `/pages/home/index?competitionId=${competition.id}`
+        url: `/pages/home/detail?id=${competition.id}`
       });
     }
   };
