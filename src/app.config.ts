@@ -4,6 +4,7 @@ export default defineAppConfig({
     'pages/home/detail',
     'pages/apply/index',
     'pages/workspace/index',
+    'pages/workspace/supplementary',
     'pages/review/index',
     'pages/notify/index'
   ],

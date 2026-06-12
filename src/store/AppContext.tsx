@@ -10,6 +10,13 @@ export interface TeamMember {
   status: 'confirmed' | 'pending';
 }
 
+export interface SupplementaryMaterial {
+  id: string;
+  name: string;
+  file: { name: string; size: string } | null;
+  uploadedAt?: string;
+}
+
 export interface ProjectApplication {
   id: string;
   competitionId: string;
@@ -23,6 +30,7 @@ export interface ProjectApplication {
     size: string;
   } | null;
   members: TeamMember[];
+  supplementaryMaterials: SupplementaryMaterial[];
   status: 'draft' | 'submitted' | 'under_review' | 'approved';
   submittedAt?: string;
   createdAt?: string;
@@ -49,6 +57,7 @@ interface AppContextType extends AppState {
   submitApplication: () => void;
   loadApplications: () => void;
   deleteDraft: (competitionId: string) => void;
+  addSupplementaryMaterial: (material: SupplementaryMaterial) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -88,14 +97,14 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setDrafts(updatedDrafts);
     Taro.setStorageSync('applicationDrafts', JSON.stringify(updatedDrafts));
     
-    console.log('[AppContext] Draft saved:', draftData.competitionName);
+    console.log('[AppContext] Draft saved:', draftData.competitionName, draftData.teamName);
   };
 
   const loadDraft = (competitionId: string): ProjectApplication | null => {
     const draft = drafts.find(d => d.competitionId === competitionId);
     if (draft) {
       setApplication(draft);
-      console.log('[AppContext] Draft loaded:', draft.competitionName);
+      console.log('[AppContext] Draft loaded:', draft.competitionName, draft.teamName);
       return draft;
     }
     return null;
@@ -158,6 +167,46 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     Taro.setStorageSync('applicationDrafts', JSON.stringify(updatedDrafts));
   };
 
+  const addSupplementaryMaterial = (material: SupplementaryMaterial) => {
+    if (!application) return;
+
+    const existingIndex = application.supplementaryMaterials.findIndex(m => m.id === material.id);
+    let updatedMaterials: SupplementaryMaterial[];
+
+    if (existingIndex >= 0) {
+      updatedMaterials = [...application.supplementaryMaterials];
+      updatedMaterials[existingIndex] = { ...material, uploadedAt: new Date().toISOString() };
+    } else {
+      updatedMaterials = [...application.supplementaryMaterials, { ...material, uploadedAt: new Date().toISOString() }];
+    }
+
+    const updatedApp = {
+      ...application,
+      supplementaryMaterials: updatedMaterials,
+      updatedAt: new Date().toISOString()
+    };
+
+    setApplication(updatedApp);
+
+    const appIndex = applicationList.findIndex(app => app.id === application.id);
+    if (appIndex >= 0) {
+      const updatedList = [...applicationList];
+      updatedList[appIndex] = updatedApp;
+      setApplicationList(updatedList);
+      Taro.setStorageSync('applicationList', JSON.stringify(updatedList));
+    }
+
+    const draftIndex = drafts.findIndex(d => d.id === application.id);
+    if (draftIndex >= 0) {
+      const updatedDrafts = [...drafts];
+      updatedDrafts[draftIndex] = updatedApp;
+      setDrafts(updatedDrafts);
+      Taro.setStorageSync('applicationDrafts', JSON.stringify(updatedDrafts));
+    }
+
+    console.log('[AppContext] Supplementary material added:', material.name);
+  };
+
   return (
     <AppContext.Provider
       value={{
@@ -176,7 +225,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         loadDraft,
         submitApplication,
         loadApplications,
-        deleteDraft
+        deleteDraft,
+        addSupplementaryMaterial
       }}
     >
       {children}

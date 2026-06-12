@@ -342,7 +342,11 @@ const WorkspacePage: React.FC = () => {
         {/* Quick Actions */}
         <View className={styles.quickActions}>
           <Button className={styles.quickActionBtn} onClick={() => {
-            Taro.showToast({ title: '材料补交通道', icon: 'none' });
+            if (currentApp && currentApp.status === 'submitted' || currentApp?.status === 'under_review') {
+              Taro.navigateTo({ url: '/pages/workspace/supplementary' });
+            } else {
+              Taro.showToast({ title: '请先提交报名', icon: 'none' });
+            }
           }}>
             📤 材料补交
           </Button>
