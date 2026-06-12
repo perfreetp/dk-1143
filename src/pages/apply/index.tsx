@@ -23,12 +23,12 @@ const ApplyPage: React.FC = () => {
 
   useEffect(() => {
     if (application) {
-      setTeamName(application.teamName);
-      setTeamSlogan(application.teamSlogan);
-      setSelectedTrack(application.track);
-      setProjectIntro(application.projectIntro);
-      setBusinessPlanFile(application.businessPlanFile);
-      setMembers(application.members);
+      setTeamName(application.teamName || '');
+      setTeamSlogan(application.teamSlogan || '');
+      setSelectedTrack(application.track || '');
+      setProjectIntro(application.projectIntro || '');
+      setBusinessPlanFile(application.businessPlanFile || null);
+      setMembers(application.members || []);
     } else {
       setMembers([{
         id: '1',
@@ -70,16 +70,13 @@ const ApplyPage: React.FC = () => {
 
   const validateStep2 = () => {
     const newErrors: Record<string, string> = {};
-    if (!projectIntro.trim()) {
-      newErrors.projectIntro = '请输入项目简介';
-    } else if (projectIntro.trim().length < 50) {
-      newErrors.projectIntro = '项目简介至少50个字';
-    }
     if (!businessPlanFile) {
       newErrors.businessPlan = '请上传商业计划书';
+      setErrors(newErrors);
+      return false;
     }
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    setErrors({});
+    return true;
   };
 
   const validateStep3 = () => {
@@ -100,7 +97,7 @@ const ApplyPage: React.FC = () => {
       }
     } else if (currentStep === 2) {
       if (!validateStep2()) {
-        Taro.showToast({ title: '请完善必填信息', icon: 'none' });
+        Taro.showToast({ title: '请上传商业计划书', icon: 'none' });
         return;
       }
     } else if (currentStep === 3) {
@@ -193,7 +190,7 @@ const ApplyPage: React.FC = () => {
           size: (file.size / 1024).toFixed(2) + 'KB'
         };
         setBusinessPlanFile(fileData);
-        saveApplicationData();
+        setErrors({});
         Taro.showToast({
           title: '上传成功',
           icon: 'success'
@@ -223,8 +220,6 @@ const ApplyPage: React.FC = () => {
 
     const updatedMembers = [...members, newMember];
     setMembers(updatedMembers);
-    saveApplicationData();
-
     setNewMemberName('');
     setNewMemberRole('');
     setNewMemberPhone('');
@@ -247,7 +242,6 @@ const ApplyPage: React.FC = () => {
     }
     const updatedMembers = members.filter(m => m.id !== memberId);
     setMembers(updatedMembers);
-    saveApplicationData();
   };
 
   const handleConfirmMember = (memberId: string) => {
@@ -255,7 +249,6 @@ const ApplyPage: React.FC = () => {
       m.id === memberId ? { ...m, status: 'confirmed' as const } : m
     );
     setMembers(updatedMembers);
-    saveApplicationData();
     Taro.showToast({
       title: '成员已确认',
       icon: 'success'
@@ -346,20 +339,22 @@ const ApplyPage: React.FC = () => {
             <Button className={styles.changeFileBtn} onClick={handleFileUpload}>更换</Button>
           </View>
         ) : (
-          <View className={`${styles.uploadArea} ${errors.businessPlan ? styles.uploadAreaError : ''}`} onClick={handleFileUpload}>
+          <View 
+            className={`${styles.uploadArea} ${errors.businessPlan ? styles.uploadAreaError : ''}`} 
+            onClick={handleFileUpload}
+          >
             <Text className={styles.uploadIcon}>📄</Text>
             <Text className={styles.uploadText}>点击上传商业计划书</Text>
             <Text className={styles.uploadHint}>支持 PDF、Word 格式</Text>
           </View>
         )}
-        {errors.businessPlan && <Text className={styles.errorText}>{errors.businessPlan}</Text>}
       </View>
 
       <View className={styles.formCard}>
-        <Text className={styles.formLabel}>项目简介 *</Text>
+        <Text className={styles.formLabel}>项目简介</Text>
         <View className={styles.textareaWrapper}>
           <Input
-            className={`${styles.textarea} ${errors.projectIntro ? styles.inputError : ''}`}
+            className={styles.textarea}
             placeholder='请简要描述您的项目（至少50字）'
             value={projectIntro}
             onInput={handleProjectIntroChange}
@@ -368,7 +363,6 @@ const ApplyPage: React.FC = () => {
           />
         </View>
         <Text className={styles.charCount}>{projectIntro.length}/500</Text>
-        {errors.projectIntro && <Text className={styles.errorText}>{errors.projectIntro}</Text>}
       </View>
     </View>
   );
@@ -508,7 +502,7 @@ const ApplyPage: React.FC = () => {
 
         <View className={styles.confirmItem}>
           <Text className={styles.confirmLabel}>团队成员</Text>
-          <Text className={styles.confirmValue}>{members.length}人</Text>
+          <Text className={styles.confirmValue}>{members.length}人（{members.filter(m => m.status === 'confirmed').length}人已确认）</Text>
         </View>
         
         <View className={styles.membersList}>

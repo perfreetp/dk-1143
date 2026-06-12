@@ -22,6 +22,37 @@ const CompetitionDetailPage: React.FC = () => {
     );
   }
 
+  const getProcessSteps = () => {
+    if (competition.process && competition.process.length > 0) {
+      return competition.process;
+    }
+
+    if (competition.status === 'ended') {
+      return [
+        { step: 1, title: '报名阶段', time: '已结束', description: '团队注册与资料提交' },
+        { step: 2, title: '初审阶段', time: '已完成', description: '材料评审与筛选' },
+        { step: 3, title: '复赛阶段', time: '已完成', description: '项目路演与答辩' },
+        { step: 4, title: '决赛阶段', time: '已完成', description: '终极PK与颁奖' }
+      ];
+    }
+
+    if (competition.status === 'upcoming') {
+      return [
+        { step: 1, title: '报名阶段', time: competition.registrationDeadline, description: '团队注册与资料提交' },
+        { step: 2, title: '初审阶段', time: '待定', description: '材料评审与筛选' },
+        { step: 3, title: '复赛阶段', time: '待定', description: '项目路演与答辩' },
+        { step: 4, title: '决赛阶段', time: '待定', description: '终极PK与颁奖' }
+      ];
+    }
+
+    return [
+      { step: 1, title: '报名阶段', time: competition.registrationDeadline, description: '团队注册与资料提交' },
+      { step: 2, title: '初审阶段', time: '进行中', description: '材料评审与筛选' },
+      { step: 3, title: '复赛阶段', time: '待进行', description: '项目路演与答辩' },
+      { step: 4, title: '决赛阶段', time: '待进行', description: '终极PK与颁奖' }
+    ];
+  };
+
   const getStatusText = (status: string) => {
     switch (status) {
       case 'ongoing':
@@ -161,31 +192,29 @@ const CompetitionDetailPage: React.FC = () => {
         </View>
 
         {/* Process */}
-        {competition.process.length > 0 && (
-          <View className={styles.section}>
-            <Text className={styles.sectionTitle}>
-              <Text className={styles.sectionIcon}>📅</Text>
-              赛程安排
-            </Text>
-            <View className={styles.processList}>
-              {competition.process.map((step, index) => (
-                <View key={step.step} className={styles.processItem}>
-                  <View className={styles.processLeft}>
-                    <View className={styles.processStep}>{step.step}</View>
-                    {index < competition.process.length - 1 && (
-                      <View className={`${styles.processLine} ${index < competition.process.length - 1 ? styles.processLineActive : ''}`} />
-                    )}
-                  </View>
-                  <View className={styles.processContent}>
-                    <Text className={styles.processTitle}>{step.title}</Text>
-                    <Text className={styles.processTime}>{step.time}</Text>
-                    <Text className={styles.processDesc}>{step.description}</Text>
-                  </View>
+        <View className={styles.section}>
+          <Text className={styles.sectionTitle}>
+            <Text className={styles.sectionIcon}>📅</Text>
+            赛程安排
+          </Text>
+          <View className={styles.processList}>
+            {getProcessSteps().map((step, index) => (
+              <View key={step.step} className={styles.processItem}>
+                <View className={styles.processLeft}>
+                  <View className={styles.processStep}>{step.step}</View>
+                  {index < getProcessSteps().length - 1 && (
+                    <View className={`${styles.processLine} ${styles.processLineActive}`} />
+                  )}
                 </View>
-              ))}
-            </View>
+                <View className={styles.processContent}>
+                  <Text className={styles.processTitle}>{step.title}</Text>
+                  <Text className={styles.processTime}>{step.time}</Text>
+                  <Text className={styles.processDesc}>{step.description}</Text>
+                </View>
+              </View>
+            ))}
           </View>
-        )}
+        </View>
 
         {/* Awards */}
         {competition.awards.length > 0 && (
@@ -213,14 +242,16 @@ const CompetitionDetailPage: React.FC = () => {
       </View>
 
       {/* Bottom Action */}
-      <View className={styles.bottomBar}>
-        <Button
-          className={`${styles.applyBtn} ${competition.status !== 'ongoing' ? styles.disabledBtn : ''}`}
-          onClick={handleApply}
-        >
-          {competition.status === 'ongoing' ? '立即报名' : '暂未开放报名'}
-        </Button>
-      </View>
+      {competition.status === 'ongoing' && (
+        <View className={styles.bottomBar}>
+          <Button
+            className={styles.applyBtn}
+            onClick={handleApply}
+          >
+            立即报名
+          </Button>
+        </View>
+      )}
     </View>
   );
 };
