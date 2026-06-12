@@ -11,6 +11,7 @@ export interface TeamMember {
 }
 
 export interface ProjectApplication {
+  id: string;
   competitionId: string;
   competitionName: string;
   teamName: string;
@@ -24,6 +25,8 @@ export interface ProjectApplication {
   members: TeamMember[];
   status: 'draft' | 'submitted' | 'under_review' | 'approved';
   submittedAt?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 interface AppState {
@@ -32,6 +35,7 @@ interface AppState {
   filterStatus: string;
   application: ProjectApplication | null;
   applicationList: ProjectApplication[];
+  drafts: ProjectApplication[];
 }
 
 interface AppContextType extends AppState {
@@ -40,8 +44,11 @@ interface AppContextType extends AppState {
   setFilterStatus: (status: string) => void;
   setApplication: (app: ProjectApplication | null) => void;
   updateApplication: (updates: Partial<ProjectApplication>) => void;
-  addApplication: (app: ProjectApplication) => void;
+  saveDraft: () => void;
+  loadDraft: (competitionId: string) => ProjectApplication | null;
+  submitApplication: () => void;
   loadApplications: () => void;
+  deleteDraft: (competitionId: string) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -52,26 +59,103 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [filterStatus, setFilterStatus] = useState('all');
   const [application, setApplication] = useState<ProjectApplication | null>(null);
   const [applicationList, setApplicationList] = useState<ProjectApplication[]>([]);
+  const [drafts, setDrafts] = useState<ProjectApplication[]>([]);
 
   const updateApplication = (updates: Partial<ProjectApplication>) => {
-    setApplication(prev => prev ? { ...prev, ...updates } : null);
+    setApplication(prev => prev ? { ...prev, ...updates, updatedAt: new Date().toISOString() } : null);
   };
 
-  const addApplication = (app: ProjectApplication) => {
-    const newList = [...applicationList, app];
-    setApplicationList(newList);
-    Taro.setStorageSync('applicationList', JSON.stringify(newList));
+  const saveDraft = () => {
+    if (!application) return;
+    
+    const draftData: ProjectApplication = {
+      ...application,
+      status: 'draft',
+      updatedAt: new Date().toISOString(),
+      createdAt: application.createdAt || new Date().toISOString()
+    };
+
+    const existingDraftIndex = drafts.findIndex(d => d.competitionId === application.competitionId);
+    let updatedDrafts: ProjectApplication[];
+
+    if (existingDraftIndex >= 0) {
+      updatedDrafts = [...drafts];
+      updatedDrafts[existingDraftIndex] = draftData;
+    } else {
+      updatedDrafts = [...drafts, draftData];
+    }
+
+    setDrafts(updatedDrafts);
+    Taro.setStorageSync('applicationDrafts', JSON.stringify(updatedDrafts));
+    
+    console.log('[AppContext] Draft saved:', draftData.competitionName);
+  };
+
+  const loadDraft = (competitionId: string): ProjectApplication | null => {
+    const draft = drafts.find(d => d.competitionId === competitionId);
+    if (draft) {
+      setApplication(draft);
+      console.log('[AppContext] Draft loaded:', draft.competitionName);
+      return draft;
+    }
+    return null;
   };
 
   const loadApplications = () => {
     try {
       const stored = Taro.getStorageSync('applicationList');
       if (stored) {
-        setApplicationList(JSON.parse(stored));
+        const apps = JSON.parse(stored);
+        setApplicationList(apps);
+        console.log('[AppContext] Applications loaded:', apps.length);
+      }
+
+      const storedDrafts = Taro.getStorageSync('applicationDrafts');
+      if (storedDrafts) {
+        const draftList = JSON.parse(storedDrafts);
+        setDrafts(draftList);
+        console.log('[AppContext] Drafts loaded:', draftList.length);
       }
     } catch (error) {
-      console.error('[AppContext] Failed to load applications:', error);
+      console.error('[AppContext] Failed to load data:', error);
     }
+  };
+
+  const submitApplication = () => {
+    if (!application) return;
+
+    const submittedApp: ProjectApplication = {
+      ...application,
+      id: application.id || Date.now().toString(),
+      status: 'submitted',
+      submittedAt: new Date().toISOString()
+    };
+
+    const existingIndex = applicationList.findIndex(app => app.id === submittedApp.id);
+    let updatedList: ProjectApplication[];
+
+    if (existingIndex >= 0) {
+      updatedList = [...applicationList];
+      updatedList[existingIndex] = submittedApp;
+    } else {
+      updatedList = [...applicationList, submittedApp];
+    }
+
+    setApplicationList(updatedList);
+    setApplication(submittedApp);
+    Taro.setStorageSync('applicationList', JSON.stringify(updatedList));
+
+    const updatedDrafts = drafts.filter(d => d.competitionId !== application.competitionId);
+    setDrafts(updatedDrafts);
+    Taro.setStorageSync('applicationDrafts', JSON.stringify(updatedDrafts));
+
+    console.log('[AppContext] Application submitted:', submittedApp.competitionName);
+  };
+
+  const deleteDraft = (competitionId: string) => {
+    const updatedDrafts = drafts.filter(d => d.competitionId !== competitionId);
+    setDrafts(updatedDrafts);
+    Taro.setStorageSync('applicationDrafts', JSON.stringify(updatedDrafts));
   };
 
   return (
@@ -82,13 +166,17 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         filterStatus,
         application,
         applicationList,
+        drafts,
         setSelectedCompetitionId,
         setSearchKeyword,
         setFilterStatus,
         setApplication,
         updateApplication,
-        addApplication,
-        loadApplications
+        saveDraft,
+        loadDraft,
+        submitApplication,
+        loadApplications,
+        deleteDraft
       }}
     >
       {children}

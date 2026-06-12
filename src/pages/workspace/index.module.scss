@@ -53,6 +53,118 @@
   padding: $page-padding;
 }
 
+.draftsSection {
+  margin-bottom: $spacing-lg;
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $spacing-md;
+}
+
+.sectionTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.sectionCount {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+.draftCard {
+  background: $color-bg-card;
+  border-radius: $radius-xl;
+  padding: $spacing-md;
+  margin-bottom: $spacing-sm;
+  box-shadow: $shadow-card;
+  border-left: 8rpx solid $color-warning;
+}
+
+.draftInfo {
+  margin-bottom: $spacing-md;
+}
+
+.draftCompetition {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  display: block;
+  margin-bottom: 4rpx;
+}
+
+.draftTeam {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  display: block;
+  margin-bottom: 4rpx;
+}
+
+.draftTime {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  display: block;
+}
+
+.draftActions {
+  display: flex;
+  gap: $spacing-sm;
+}
+
+.continueBtn {
+  @include button-reset;
+  flex: 2;
+  height: $button-height-md;
+  background: $gradient-primary;
+  color: $color-text-white;
+  border-radius: $radius-button;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+}
+
+.deleteBtn {
+  @include button-reset;
+  flex: 1;
+  height: $button-height-md;
+  background: $color-bg-page;
+  color: $color-error;
+  border-radius: $radius-button;
+  font-size: $font-size-sm;
+  border: 2rpx solid $color-error;
+}
+
+.draftBanner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-md;
+  background: rgba(250, 173, 20, 0.1);
+  border-radius: $radius-lg;
+  margin-bottom: $spacing-md;
+  border: 2rpx solid $color-warning;
+}
+
+.draftBannerText {
+  flex: 1;
+  font-size: $font-size-sm;
+  color: $color-warning;
+  font-weight: $font-weight-medium;
+}
+
+.draftBannerBtn {
+  @include button-reset;
+  padding: 12rpx 24rpx;
+  background: $color-warning;
+  color: $color-text-white;
+  border-radius: $radius-button;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  margin-left: $spacing-sm;
+}
+
 .emptyStateContainer {
   text-align: center;
   padding: 100rpx $page-padding;
@@ -170,7 +282,6 @@
 
 .progressFill {
   height: 100%;
-  background: $color-text-white;
   border-radius: 6rpx;
   transition: width 0.3s ease;
 }
@@ -193,8 +304,7 @@
 
 .detailItem {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
   padding: $spacing-sm 0;
   border-bottom: 1rpx solid $color-border;
 
@@ -204,8 +314,10 @@
 }
 
 .detailLabel {
-  font-size: $font-size-md;
+  font-size: $font-size-sm;
   color: $color-text-tertiary;
+  margin-bottom: 4rpx;
+  display: block;
 }
 
 .detailValue {
@@ -214,8 +326,10 @@
   font-weight: $font-weight-medium;
 }
 
-.statusText {
-  color: $color-primary;
+.detailValueMulti {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  line-height: 1.6;
 }
 
 .membersPreview {
@@ -298,11 +412,23 @@
   color: $color-warning;
 }
 
-.sectionTitle {
-  font-size: $font-size-lg;
-  font-weight: $font-weight-semibold;
+.quickActions {
+  display: flex;
+  gap: $spacing-md;
+  margin-bottom: $spacing-lg;
+}
+
+.quickActionBtn {
+  @include button-reset;
+  flex: 1;
+  height: $button-height-md;
+  background: $color-bg-card;
   color: $color-text-primary;
-  margin-bottom: $spacing-md;
+  border-radius: $radius-button;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  border: 2rpx solid $color-border;
+  box-shadow: $shadow-card;
 }
 
 .phaseList {
@@ -369,6 +495,13 @@
 .statusCompleted {
   color: $color-success;
   background: rgba(82, 196, 26, 0.1);
+  padding: 8rpx 20rpx;
+  border-radius: $radius-button;
+}
+
+.statusDraft {
+  color: $color-warning;
+  background: rgba(250, 173, 20, 0.1);
   padding: 8rpx 20rpx;
   border-radius: $radius-button;
 }

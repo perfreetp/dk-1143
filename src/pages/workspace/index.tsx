@@ -21,14 +21,20 @@ interface TodoItem {
 }
 
 const WorkspacePage: React.FC = () => {
-  const { application, applicationList, loadApplications } = useAppContext();
+  const { application, applicationList, drafts, loadApplications, setApplication, deleteDraft } = useAppContext();
   const [activeTab, setActiveTab] = useState('progress');
 
   useEffect(() => {
     loadApplications();
   }, []);
 
-  const currentApp = applicationList.length > 0 ? applicationList[applicationList.length - 1] : application;
+  useEffect(() => {
+    if (applicationList.length > 0 && !application) {
+      setApplication(applicationList[applicationList.length - 1]);
+    }
+  }, [applicationList]);
+
+  const currentApp = application || (applicationList.length > 0 ? applicationList[applicationList.length - 1] : null);
 
   const getProjectInfo = () => {
     if (!currentApp) {
@@ -42,13 +48,13 @@ const WorkspacePage: React.FC = () => {
     }
 
     const statusMap = {
-      draft: { phase: '草稿', progress: 25 },
-      submitted: { phase: '待审核', progress: 50 },
-      under_review: { phase: '审核中', progress: 65 },
-      approved: { phase: '已通过', progress: 80 }
+      draft: { phase: '草稿', progress: 25, color: '#FAAD14' },
+      submitted: { phase: '待审核', progress: 50, color: '#5B86E5' },
+      under_review: { phase: '审核中', progress: 65, color: '#36D1DC' },
+      approved: { phase: '已通过', progress: 80, color: '#52C41A' }
     };
 
-    const statusInfo = statusMap[currentApp.status] || { phase: '未知', progress: 0 };
+    const statusInfo = statusMap[currentApp.status] || { phase: '未知', progress: 0, color: '#86909C' };
 
     return {
       name: currentApp.teamName || '我的项目',
@@ -56,10 +62,12 @@ const WorkspacePage: React.FC = () => {
       competition: currentApp.competitionName || '未知赛事',
       currentPhase: statusInfo.phase,
       phaseProgress: statusInfo.progress,
+      phaseColor: statusInfo.color,
       track: currentApp.track,
       members: currentApp.members,
       businessPlanFile: currentApp.businessPlanFile,
-      projectIntro: currentApp.projectIntro
+      projectIntro: currentApp.projectIntro,
+      status: currentApp.status
     };
   };
 
@@ -69,22 +77,22 @@ const WorkspacePage: React.FC = () => {
     {
       id: '1',
       title: '提交报名',
-      time: currentApp.submittedAt ? new Date(currentApp.submittedAt).toLocaleDateString() : '已提交',
-      status: 'completed',
-      description: '报名材料已提交，等待审核'
+      time: currentApp.submittedAt ? new Date(currentApp.submittedAt).toLocaleDateString() : '草稿保存',
+      status: currentApp.status === 'draft' ? 'current' : 'completed',
+      description: currentApp.status === 'draft' ? '报名材料保存为草稿' : '报名材料已提交，等待审核'
     },
     {
       id: '2',
       title: '材料初审',
-      time: '审核中',
-      status: 'current',
+      time: currentApp.status === 'submitted' ? '审核中' : currentApp.status === 'under_review' ? '审核中' : '待审核',
+      status: currentApp.status === 'submitted' || currentApp.status === 'under_review' ? 'current' : 'pending',
       description: '评委正在审核您的商业计划书'
     },
     {
       id: '3',
       title: '项目路演',
       time: '待进行',
-      status: 'pending',
+      status: currentApp.status === 'approved' ? 'current' : 'pending',
       description: '通过初审后进行项目路演'
     },
     {
@@ -96,26 +104,33 @@ const WorkspacePage: React.FC = () => {
     },
     {
       id: '5',
-      title: '颁奖典礼',
+      title: '结果公示',
       time: '待进行',
       status: 'pending',
-      description: '公布获奖名单并颁奖'
+      description: '公布获奖名单'
     }
   ] : [];
 
   const todoItems: TodoItem[] = currentApp ? [
-    {
+    ...(currentApp.status === 'draft' ? [{
       id: '1',
+      title: '继续完善报名材料',
+      deadline: '尽快完成',
+      priority: 'high' as const,
+      status: 'pending' as const
+    }] : []),
+    ...(currentApp.status === 'submitted' ? [{
+      id: '2',
       title: '等待材料初审',
       deadline: '3-5个工作日',
-      priority: 'high',
-      status: 'pending'
-    },
-    ...(currentApp.members.some(m => m.status === 'pending') ? [{
-      id: '2',
+      priority: 'medium' as const,
+      status: 'pending' as const
+    }] : []),
+    ...(currentApp.members?.some(m => m.status === 'pending') ? [{
+      id: '3',
       title: '团队成员待确认',
       deadline: '尽快',
-      priority: 'medium',
+      priority: 'medium' as const,
       status: 'pending' as const
     }] : [])
   ] : [];
@@ -146,13 +161,71 @@ const WorkspacePage: React.FC = () => {
     });
   };
 
+  const handleContinueDraft = (draft) => {
+    setApplication(draft);
+    Taro.switchTab({
+      url: '/pages/apply/index'
+    });
+  };
+
+  const handleDeleteDraft = (competitionId: string) => {
+    Taro.showModal({
+      title: '确认删除',
+      content: '确定要删除这个草稿吗？',
+      success: (res) => {
+        if (res.confirm) {
+          deleteDraft(competitionId);
+          Taro.showToast({
+            title: '已删除',
+            icon: 'success'
+          });
+        }
+      }
+    });
+  };
+
+  const renderDraftsSection = () => {
+    if (drafts.length === 0) return null;
+
+    return (
+      <View className={styles.draftsSection}>
+        <View className={styles.sectionHeader}>
+          <Text className={styles.sectionTitle}>📝 草稿箱</Text>
+          <Text className={styles.sectionCount}>{drafts.length}个草稿</Text>
+        </View>
+
+        {drafts.map(draft => (
+          <View key={draft.competitionId} className={styles.draftCard}>
+            <View className={styles.draftInfo}>
+              <Text className={styles.draftCompetition}>{draft.competitionName}</Text>
+              <Text className={styles.draftTeam}>{draft.teamName || '未填写团队名称'}</Text>
+              <Text className={styles.draftTime}>
+                最后保存：{draft.updatedAt ? new Date(draft.updatedAt).toLocaleString() : '未知'}
+              </Text>
+            </View>
+            <View className={styles.draftActions}>
+              <Button className={styles.continueBtn} onClick={() => handleContinueDraft(draft)}>
+                继续填写
+              </Button>
+              <Button className={styles.deleteBtn} onClick={() => handleDeleteDraft(draft.competitionId)}>
+                删除
+              </Button>
+            </View>
+          </View>
+        ))}
+      </View>
+    );
+  };
+
   const renderEmptyState = () => (
     <View className={styles.emptyStateContainer}>
       <Text className={styles.emptyIcon}>📋</Text>
       <Text className={styles.emptyTitle}>暂未报名</Text>
-      <Text className={styles.emptyDesc}>快去选择心仪的赛事报名吧！</Text>
+      <Text className={styles.emptyDesc}>
+        {drafts.length > 0 ? '您有未完成的报名，快去继续填写吧！' : '快去选择心仪的赛事报名吧！'}
+      </Text>
       <Button className={styles.gotoApplyBtn} onClick={() => Taro.switchTab({ url: '/pages/home/index' })}>
-        前往报名
+        {drafts.length > 0 ? '继续报名' : '前往报名'}
       </Button>
     </View>
   );
@@ -162,13 +235,27 @@ const WorkspacePage: React.FC = () => {
       return renderEmptyState();
     }
 
+    const confirmedMembers = currentApp.members?.filter(m => m.status === 'confirmed').length || 0;
+    const totalMembers = currentApp.members?.length || 0;
+
     return (
       <View className={styles.tabContent}>
+        {renderDraftsSection()}
+
+        {currentApp.status === 'draft' && (
+          <View className={styles.draftBanner}>
+            <Text className={styles.draftBannerText}>⚠️ 当前为草稿状态，请尽快完成报名</Text>
+            <Button className={styles.draftBannerBtn} onClick={() => Taro.switchTab({ url: '/pages/apply/index' })}>
+              继续填写
+            </Button>
+          </View>
+        )}
+
         {/* Project Overview Card */}
         <View className={styles.overviewCard}>
           <View className={styles.projectHeader}>
             <Text className={styles.projectName}>{projectInfo.name}</Text>
-            <View className={styles.projectBadge}>
+            <View className={styles.projectBadge} style={{ background: projectInfo.phaseColor }}>
               <Text className={styles.projectBadgeText}>{projectInfo.currentPhase}</Text>
             </View>
           </View>
@@ -184,14 +271,17 @@ const WorkspacePage: React.FC = () => {
               <Text className={styles.progressPercent}>{projectInfo.phaseProgress}%</Text>
             </View>
             <View className={styles.progressBar}>
-              <View className={styles.progressFill} style={{ width: `${projectInfo.phaseProgress}%` }} />
+              <View className={styles.progressFill} style={{ 
+                width: `${projectInfo.phaseProgress}%`,
+                background: projectInfo.phaseColor
+              }} />
             </View>
           </View>
         </View>
 
         {/* Project Details */}
         <View className={styles.detailsCard}>
-          <Text className={styles.detailsTitle}>项目信息</Text>
+          <Text className={styles.detailsTitle}>项目档案</Text>
           
           <View className={styles.detailItem}>
             <Text className={styles.detailLabel}>团队名称</Text>
@@ -205,7 +295,7 @@ const WorkspacePage: React.FC = () => {
 
           <View className={styles.detailItem}>
             <Text className={styles.detailLabel}>团队成员</Text>
-            <Text className={styles.detailValue}>{projectInfo.members?.length || 0}人</Text>
+            <Text className={styles.detailValue}>{totalMembers}人（{confirmedMembers}人已确认）</Text>
           </View>
 
           <View className={styles.detailItem}>
@@ -215,10 +305,17 @@ const WorkspacePage: React.FC = () => {
 
           <View className={styles.detailItem}>
             <Text className={styles.detailLabel}>报名状态</Text>
-            <Text className={`${styles.detailValue} ${styles.statusText}`}>
+            <Text className={styles.detailValue} style={{ color: projectInfo.phaseColor }}>
               {projectInfo.currentPhase}
             </Text>
           </View>
+
+          {projectInfo.projectIntro && (
+            <View className={styles.detailItem}>
+              <Text className={styles.detailLabel}>项目简介</Text>
+              <Text className={styles.detailValueMulti}>{projectInfo.projectIntro}</Text>
+            </View>
+          )}
         </View>
 
         {/* Team Members Preview */}
@@ -242,6 +339,20 @@ const WorkspacePage: React.FC = () => {
           </View>
         )}
 
+        {/* Quick Actions */}
+        <View className={styles.quickActions}>
+          <Button className={styles.quickActionBtn} onClick={() => {
+            Taro.showToast({ title: '材料补交通道', icon: 'none' });
+          }}>
+            📤 材料补交
+          </Button>
+          <Button className={styles.quickActionBtn} onClick={() => {
+            Taro.switchTab({ url: '/pages/review/index' });
+          }}>
+            📅 答辩预约
+          </Button>
+        </View>
+
         {/* Phase List */}
         <View className={styles.phaseList}>
           <Text className={styles.sectionTitle}>报名流程</Text>
@@ -252,23 +363,33 @@ const WorkspacePage: React.FC = () => {
             </View>
             <View className={styles.phaseContent}>
               <Text className={styles.phaseTitle}>团队报名</Text>
-              <Text className={styles.phaseTime}>已提交</Text>
+              <Text className={styles.phaseTime}>
+                {currentApp.status === 'draft' ? '草稿保存' : '已提交'}
+              </Text>
             </View>
             <View className={styles.phaseStatus}>
-              <Text className={styles.statusCompleted}>已完成</Text>
+              <Text className={currentApp.status === 'draft' ? styles.statusDraft : styles.statusCompleted}>
+                {currentApp.status === 'draft' ? '草稿' : '已完成'}
+              </Text>
             </View>
           </View>
 
           <View className={styles.phaseItem}>
-            <View className={`${styles.phaseIcon} ${styles.phaseIconActive}`}>
+            <View className={`${styles.phaseIcon} ${currentApp.status !== 'draft' ? styles.phaseIconActive : styles.phaseIconPending}`}>
               <Text>2</Text>
             </View>
             <View className={styles.phaseContent}>
               <Text className={styles.phaseTitle}>材料初审</Text>
-              <Text className={styles.phaseTime}>审核中</Text>
+              <Text className={styles.phaseTime}>
+                {currentApp.status === 'submitted' ? '等待审核' : 
+                 currentApp.status === 'under_review' ? '审核中' : 
+                 currentApp.status === 'approved' ? '已通过' : '待提交'}
+              </Text>
             </View>
             <View className={styles.phaseStatus}>
-              <Text className={styles.statusOngoing}>进行中</Text>
+              <Text className={currentApp.status === 'submitted' || currentApp.status === 'under_review' ? styles.statusOngoing : styles.statusPending}>
+                {currentApp.status === 'submitted' || currentApp.status === 'under_review' ? '进行中' : '待开始'}
+              </Text>
             </View>
           </View>
 
@@ -375,7 +496,7 @@ const WorkspacePage: React.FC = () => {
                   </View>
                 </View>
                 <Button className={styles.todoAction} onClick={() => handleTodoAction(todo.id)}>
-                  查看
+                  处理
                 </Button>
               </View>
             ))}

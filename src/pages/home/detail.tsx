@@ -27,30 +27,45 @@ const CompetitionDetailPage: React.FC = () => {
       return competition.process;
     }
 
+    const commonPhases = [
+      { step: 1, title: '报名阶段', time: competition.registrationDeadline, description: '团队注册与资料提交' },
+      { step: 2, title: '材料初审', time: '进行中', description: '评委对商业计划书进行审核' },
+      { step: 3, title: '项目路演', time: '待进行', description: '通过初审的项目进行现场路演展示' },
+      { step: 4, title: '决赛答辩', time: '待进行', description: '优秀项目进行答辩与评委问答' },
+      { step: 5, title: '结果公示', time: '待进行', description: '公布获奖名单与颁奖典礼' }
+    ];
+
     if (competition.status === 'ended') {
       return [
         { step: 1, title: '报名阶段', time: '已结束', description: '团队注册与资料提交' },
-        { step: 2, title: '初审阶段', time: '已完成', description: '材料评审与筛选' },
-        { step: 3, title: '复赛阶段', time: '已完成', description: '项目路演与答辩' },
-        { step: 4, title: '决赛阶段', time: '已完成', description: '终极PK与颁奖' }
+        { step: 2, title: '材料初审', time: '已完成', description: '评委对商业计划书进行审核' },
+        { step: 3, title: '项目路演', time: '已完成', description: '通过初审的项目进行现场路演展示' },
+        { step: 4, title: '决赛答辩', time: '已完成', description: '优秀项目进行答辩与评委问答' },
+        { step: 5, title: '结果公示', time: '已完成', description: '公布获奖名单与颁奖典礼' }
       ];
     }
 
     if (competition.status === 'upcoming') {
       return [
         { step: 1, title: '报名阶段', time: competition.registrationDeadline, description: '团队注册与资料提交' },
-        { step: 2, title: '初审阶段', time: '待定', description: '材料评审与筛选' },
-        { step: 3, title: '复赛阶段', time: '待定', description: '项目路演与答辩' },
-        { step: 4, title: '决赛阶段', time: '待定', description: '终极PK与颁奖' }
+        { step: 2, title: '材料初审', time: '待定', description: '评委对商业计划书进行审核' },
+        { step: 3, title: '项目路演', time: '待定', description: '通过初审的项目进行现场路演展示' },
+        { step: 4, title: '决赛答辩', time: '待定', description: '优秀项目进行答辩与评委问答' },
+        { step: 5, title: '结果公示', time: '待定', description: '公布获奖名单与颁奖典礼' }
       ];
     }
 
-    return [
-      { step: 1, title: '报名阶段', time: competition.registrationDeadline, description: '团队注册与资料提交' },
-      { step: 2, title: '初审阶段', time: '进行中', description: '材料评审与筛选' },
-      { step: 3, title: '复赛阶段', time: '待进行', description: '项目路演与答辩' },
-      { step: 4, title: '决赛阶段', time: '待进行', description: '终极PK与颁奖' }
-    ];
+    if (competition.title.includes('孵化')) {
+      return [
+        { step: 1, title: '申请阶段', time: competition.registrationDeadline, description: '项目申请与材料提交' },
+        { step: 2, title: '项目评审', time: '进行中', description: '专家评审团对项目进行评审' },
+        { step: 3, title: '尽职调查', time: '待进行', description: '对候选项目进行尽职调查' },
+        { step: 4, title: '孵化路演', time: '待进行', description: '项目路演与孵化资源对接' },
+        { step: 5, title: '结果公示', time: '待进行', description: '公布孵化项目名单与资源对接' }
+      ];
+    }
+
+    return commonPhases;
   };
 
   const getStatusText = (status: string) => {
@@ -95,6 +110,7 @@ const CompetitionDetailPage: React.FC = () => {
     setSelectedCompetitionId(competition.id);
     
     setApplication({
+      id: '',
       competitionId: competition.id,
       competitionName: competition.title,
       teamName: '',

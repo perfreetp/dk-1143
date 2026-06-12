@@ -5,7 +5,15 @@ import { useAppContext, TeamMember } from '@/store/AppContext';
 import styles from './index.module.scss';
 
 const ApplyPage: React.FC = () => {
-  const { application, updateApplication, setApplication, addApplication, selectedCompetitionId } = useAppContext();
+  const { 
+    application, 
+    setApplication, 
+    saveDraft, 
+    loadDraft, 
+    submitApplication,
+    selectedCompetitionId,
+    loadApplications 
+  } = useAppContext();
   
   const [currentStep, setCurrentStep] = useState(1);
   const [teamName, setTeamName] = useState('');
@@ -22,6 +30,8 @@ const ApplyPage: React.FC = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
+    loadApplications();
+    
     if (application) {
       setTeamName(application.teamName || '');
       setTeamSlogan(application.teamSlogan || '');
@@ -30,16 +40,62 @@ const ApplyPage: React.FC = () => {
       setBusinessPlanFile(application.businessPlanFile || null);
       setMembers(application.members || []);
     } else {
-      setMembers([{
-        id: '1',
-        name: '我',
-        role: '队长',
-        phone: '',
-        email: '',
-        status: 'confirmed'
-      }]);
+      const currentCompetitionId = selectedCompetitionId || application?.competitionId;
+      if (currentCompetitionId) {
+        const draft = loadDraft(currentCompetitionId);
+        if (draft) {
+          setTeamName(draft.teamName || '');
+          setTeamSlogan(draft.teamSlogan || '');
+          setSelectedTrack(draft.track || '');
+          setProjectIntro(draft.projectIntro || '');
+          setBusinessPlanFile(draft.businessPlanFile || null);
+          setMembers(draft.members || []);
+        } else {
+          initNewApplication();
+        }
+      } else {
+        initNewApplication();
+      }
     }
   }, [application]);
+
+  const initNewApplication = () => {
+    setMembers([{
+      id: '1',
+      name: '我',
+      role: '队长',
+      phone: '',
+      email: '',
+      status: 'confirmed'
+    }]);
+  };
+
+  useEffect(() => {
+    if (application?.status !== 'submitted') {
+      const timeoutId = setTimeout(() => {
+        saveCurrentProgress();
+      }, 1000);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [teamName, teamSlogan, selectedTrack, projectIntro, businessPlanFile, members]);
+
+  const saveCurrentProgress = () => {
+    if (application?.status === 'submitted') return;
+
+    const appData = {
+      id: application?.id || Date.now().toString(),
+      competitionId: selectedCompetitionId || application?.competitionId || '',
+      competitionName: application?.competitionName || '',
+      teamName,
+      teamSlogan,
+      track: selectedTrack,
+      projectIntro,
+      businessPlanFile,
+      members,
+      status: 'draft' as const
+    };
+    setApplication(appData);
+  };
 
   const tracks = [
     '科技创新',
@@ -70,13 +126,19 @@ const ApplyPage: React.FC = () => {
 
   const validateStep2 = () => {
     const newErrors: Record<string, string> = {};
+    
     if (!businessPlanFile) {
       newErrors.businessPlan = '请上传商业计划书';
-      setErrors(newErrors);
-      return false;
     }
-    setErrors({});
-    return true;
+    
+    if (!projectIntro.trim()) {
+      newErrors.projectIntro = '请填写项目简介';
+    } else if (projectIntro.trim().length < 50) {
+      newErrors.projectIntro = '项目简介至少50个字';
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const validateStep3 = () => {
@@ -97,7 +159,9 @@ const ApplyPage: React.FC = () => {
       }
     } else if (currentStep === 2) {
       if (!validateStep2()) {
-        Taro.showToast({ title: '请上传商业计划书', icon: 'none' });
+        if (errors.businessPlan || errors.projectIntro) {
+          Taro.showToast({ title: '请完善商业计划书和简介', icon: 'none' });
+        }
         return;
       }
     } else if (currentStep === 3) {
@@ -107,7 +171,7 @@ const ApplyPage: React.FC = () => {
       }
     }
 
-    saveApplicationData();
+    saveCurrentProgress();
 
     if (currentStep < 4) {
       setCurrentStep(currentStep + 1);
@@ -119,28 +183,24 @@ const ApplyPage: React.FC = () => {
 
   const handlePrev = () => {
     if (currentStep > 1) {
-      saveApplicationData();
+      saveCurrentProgress();
       setCurrentStep(currentStep - 1);
       setErrors({});
     }
   };
 
-  const saveApplicationData = () => {
-    const appData = {
-      competitionId: selectedCompetitionId || application?.competitionId || '',
-      competitionName: application?.competitionName || '',
-      teamName,
-      teamSlogan,
-      track: selectedTrack,
-      projectIntro,
-      businessPlanFile,
-      members,
-      status: 'draft' as const
-    };
-    setApplication(appData);
-  };
-
   const handleSubmit = () => {
+    if (!teamName.trim() || !selectedTrack || !businessPlanFile || !projectIntro.trim() || projectIntro.trim().length < 50) {
+      Taro.showToast({ title: '请完整填写所有必填项', icon: 'none' });
+      return;
+    }
+
+    const confirmedMembers = members.filter(m => m.status === 'confirmed');
+    if (confirmedMembers.length < 2) {
+      Taro.showToast({ title: '至少需要2名已确认的团队成员', icon: 'none' });
+      return;
+    }
+
     Taro.showModal({
       title: '确认提交',
       content: '确定要提交报名信息吗？提交后将无法修改。',
@@ -148,7 +208,8 @@ const ApplyPage: React.FC = () => {
         if (res.confirm) {
           Taro.showLoading({ title: '提交中...' });
           
-          const submittedApp = {
+          const appData = {
+            id: application?.id || Date.now().toString(),
             competitionId: selectedCompetitionId || application?.competitionId || '',
             competitionName: application?.competitionName || '',
             teamName,
@@ -160,11 +221,11 @@ const ApplyPage: React.FC = () => {
             status: 'submitted' as const,
             submittedAt: new Date().toISOString()
           };
-
-          setApplication(submittedApp);
-          addApplication(submittedApp);
-
+          
+          setApplication(appData);
+          
           setTimeout(() => {
+            submitApplication();
             Taro.hideLoading();
             Taro.showToast({
               title: '提交成功',
@@ -190,7 +251,7 @@ const ApplyPage: React.FC = () => {
           size: (file.size / 1024).toFixed(2) + 'KB'
         };
         setBusinessPlanFile(fileData);
-        setErrors({});
+        setErrors({...errors, businessPlan: ''});
         Taro.showToast({
           title: '上传成功',
           icon: 'success'
@@ -348,13 +409,15 @@ const ApplyPage: React.FC = () => {
             <Text className={styles.uploadHint}>支持 PDF、Word 格式</Text>
           </View>
         )}
+        {errors.businessPlan && <Text className={styles.errorText}>{errors.businessPlan}</Text>}
       </View>
 
       <View className={styles.formCard}>
-        <Text className={styles.formLabel}>项目简介</Text>
+        <Text className={styles.formLabel}>项目简介 *</Text>
+        <Text className={styles.formHint}>请详细描述您的项目，包括项目背景、核心产品、商业模式等（至少50字）</Text>
         <View className={styles.textareaWrapper}>
           <Input
-            className={styles.textarea}
+            className={`${styles.textarea} ${errors.projectIntro ? styles.inputError : ''}`}
             placeholder='请简要描述您的项目（至少50字）'
             value={projectIntro}
             onInput={handleProjectIntroChange}
@@ -363,6 +426,7 @@ const ApplyPage: React.FC = () => {
           />
         </View>
         <Text className={styles.charCount}>{projectIntro.length}/500</Text>
+        {errors.projectIntro && <Text className={styles.errorText}>{errors.projectIntro}</Text>}
       </View>
     </View>
   );
@@ -470,67 +534,71 @@ const ApplyPage: React.FC = () => {
     </View>
   );
 
-  const renderConfirmSubmit = () => (
-    <View className={styles.formSection}>
-      <View className={styles.confirmCard}>
-        <Text className={styles.confirmTitle}>报名信息确认</Text>
-        
-        <View className={styles.confirmItem}>
-          <Text className={styles.confirmLabel}>参赛赛事</Text>
-          <Text className={styles.confirmValue}>{application?.competitionName || '未选择'}</Text>
-        </View>
+  const renderConfirmSubmit = () => {
+    const confirmedCount = members.filter(m => m.status === 'confirmed').length;
+    
+    return (
+      <View className={styles.formSection}>
+        <View className={styles.confirmCard}>
+          <Text className={styles.confirmTitle}>报名信息确认</Text>
+          
+          <View className={styles.confirmItem}>
+            <Text className={styles.confirmLabel}>参赛赛事</Text>
+            <Text className={styles.confirmValue}>{application?.competitionName || '未选择'}</Text>
+          </View>
 
-        <View className={styles.confirmItem}>
-          <Text className={styles.confirmLabel}>团队名称</Text>
-          <Text className={styles.confirmValue}>{teamName || '未填写'}</Text>
-        </View>
+          <View className={styles.confirmItem}>
+            <Text className={styles.confirmLabel}>团队名称</Text>
+            <Text className={styles.confirmValue}>{teamName || '未填写'}</Text>
+          </View>
 
-        <View className={styles.confirmItem}>
-          <Text className={styles.confirmLabel}>参赛赛道</Text>
-          <Text className={styles.confirmValue}>{selectedTrack || '未选择'}</Text>
-        </View>
+          <View className={styles.confirmItem}>
+            <Text className={styles.confirmLabel}>参赛赛道</Text>
+            <Text className={styles.confirmValue}>{selectedTrack || '未选择'}</Text>
+          </View>
 
-        <View className={styles.confirmItem}>
-          <Text className={styles.confirmLabel}>商业计划书</Text>
-          <Text className={styles.confirmValue}>{businessPlanFile ? businessPlanFile.name : '未上传'}</Text>
-        </View>
+          <View className={styles.confirmItem}>
+            <Text className={styles.confirmLabel}>商业计划书</Text>
+            <Text className={styles.confirmValue}>{businessPlanFile ? businessPlanFile.name : '未上传'}</Text>
+          </View>
 
-        <View className={styles.confirmItem}>
-          <Text className={styles.confirmLabel}>项目简介</Text>
-          <Text className={styles.confirmValueMulti}>{projectIntro || '未填写'}</Text>
-        </View>
+          <View className={styles.confirmItem}>
+            <Text className={styles.confirmLabel}>项目简介</Text>
+            <Text className={styles.confirmValueMulti}>{projectIntro || '未填写'}</Text>
+          </View>
 
-        <View className={styles.confirmItem}>
-          <Text className={styles.confirmLabel}>团队成员</Text>
-          <Text className={styles.confirmValue}>{members.length}人（{members.filter(m => m.status === 'confirmed').length}人已确认）</Text>
-        </View>
-        
-        <View className={styles.membersList}>
-          {members.map((member, index) => (
-            <View key={member.id} className={styles.memberConfirmItem}>
-              <Text className={styles.memberConfirmName}>{member.name}</Text>
-              <Text className={styles.memberConfirmRole}>{member.role}</Text>
-              <View className={`${styles.memberConfirmStatus} ${member.status === 'confirmed' ? styles.statusConfirmed : styles.statusPending}`}>
-                <Text className={styles.memberConfirmStatusText}>
-                  {member.status === 'confirmed' ? '已确认' : '待确认'}
-                </Text>
+          <View className={styles.confirmItem}>
+            <Text className={styles.confirmLabel}>团队成员</Text>
+            <Text className={styles.confirmValue}>{members.length}人（{confirmedCount}人已确认）</Text>
+          </View>
+          
+          <View className={styles.membersList}>
+            {members.map((member, index) => (
+              <View key={member.id} className={styles.memberConfirmItem}>
+                <Text className={styles.memberConfirmName}>{member.name}</Text>
+                <Text className={styles.memberConfirmRole}>{member.role}</Text>
+                <View className={`${styles.memberConfirmStatus} ${member.status === 'confirmed' ? styles.statusConfirmed : styles.statusPending}`}>
+                  <Text className={styles.memberConfirmStatusText}>
+                    {member.status === 'confirmed' ? '已确认' : '待确认'}
+                  </Text>
+                </View>
               </View>
-            </View>
-          ))}
+            ))}
+          </View>
+        </View>
+
+        <View className={styles.agreementCard}>
+          <Text className={styles.agreementTitle}>参赛协议</Text>
+          <Text className={styles.agreementText}>
+            1. 参赛项目必须为原创项目，不得侵犯他人知识产权{'\n'}
+            2. 参赛者需保证所填信息真实有效{'\n'}
+            3. 大赛组委会有权对参赛项目进行宣传展示{'\n'}
+            4. 获奖项目需配合后续孵化对接工作
+          </Text>
         </View>
       </View>
-
-      <View className={styles.agreementCard}>
-        <Text className={styles.agreementTitle}>参赛协议</Text>
-        <Text className={styles.agreementText}>
-          1. 参赛项目必须为原创项目，不得侵犯他人知识产权{'\n'}
-          2. 参赛者需保证所填信息真实有效{'\n'}
-          3. 大赛组委会有权对参赛项目进行宣传展示{'\n'}
-          4. 获奖项目需配合后续孵化对接工作
-        </Text>
-      </View>
-    </View>
-  );
+    );
+  };
 
   return (
     <View className={styles.container}>
